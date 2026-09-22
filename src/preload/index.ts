@@ -9,6 +9,11 @@ import type {
 import type { UpdateStatus } from '../shared/updater'
 
 const api = {
+  app: {
+    urlRepositorio: (): Promise<string> => ipcRenderer.invoke('app:url-repositorio'),
+    abrirRepositorio: (): Promise<void> => ipcRenderer.invoke('app:abrir-repositorio')
+  },
+
   updater: {
     getStatus: (): Promise<UpdateStatus> => ipcRenderer.invoke('updater:get-status'),
     getVersion: (): Promise<string> => ipcRenderer.invoke('updater:get-version'),

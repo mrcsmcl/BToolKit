@@ -18,6 +18,7 @@ publish:
 
 win:
   target: nsis
+  icon: resources/icon.ico
   artifactName: ${productName}-${version}-setup.${ext}
 
 nsis:

@@ -7,8 +7,47 @@
   --color-border: #242938;
   --color-fg: #e6e9f0;
   --color-muted: #8b93a7;
-  --color-accent: #6366f1;
-  --color-accent-fg: #c7d2fe;
+  --color-accent: #7c3aed;
+  --color-accent-fg: #c4b5fd;
+
+  --animate-girar: girar 1s linear infinite;
+  --animate-surgir: surgir 220ms ease-out;
+  --animate-descer: descer 260ms cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-pulsar: pulsar 2s ease-in-out infinite;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes surgir {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes descer {
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pulsar {
+  50% {
+    opacity: 0.55;
+  }
 }
 
 html,
@@ -31,4 +70,18 @@ body {
 ::-webkit-scrollbar-thumb {
   background: var(--color-border);
   border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2f3547;
+}
+
+/* Quem pediu menos movimento no sistema não deve receber nenhum daqui. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

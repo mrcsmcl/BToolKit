@@ -88,11 +88,20 @@ export function setupUpdater(): void {
   })
 }
 
-export function checkForUpdates(): void {
+/**
+ * Devolve uma promessa que só resolve quando a consulta termina. A tela espera por
+ * ela para saber por quanto tempo manter o indicador de progresso girando.
+ */
+export async function checkForUpdates(): Promise<void> {
   // Sem build empacotado não existe release para comparar.
   if (!app.isPackaged) {
     broadcast({ state: 'up-to-date' })
     return
   }
-  autoUpdater.checkForUpdates().catch((err) => log.error('checkForUpdates falhou', err))
+
+  try {
+    await autoUpdater.checkForUpdates()
+  } catch (err) {
+    log.error('checkForUpdates falhou', err)
+  }
 }

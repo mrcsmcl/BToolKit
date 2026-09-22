@@ -1,6 +1,7 @@
 import { join } from 'node:path'
 import { app, BrowserWindow, shell } from 'electron'
 import log from 'electron-log'
+import { setupApp } from './app'
 import { setupRepos } from './repos'
 import { checkForUpdates, setupUpdater } from './updater'
 
@@ -14,6 +15,8 @@ const LIMITE_EXIBICAO_MS = 10_000
 
 function createWindow(): BrowserWindow {
   const win = new BrowserWindow({
+    // Empacotado, o icone da janela vem do proprio executavel; em dev precisa ser dito.
+    ...(app.isPackaged ? {} : { icon: join(__dirname, '../../resources/icon.png') }),
     width: 1100,
     height: 720,
     minWidth: 860,
@@ -95,10 +98,11 @@ if (!app.requestSingleInstanceLock()) {
   app.whenReady().then(() => {
     log.info(`BToolKit ${app.getVersion()} iniciando`)
     setupUpdater()
+    setupApp()
     setupRepos()
     createWindow()
-    checkForUpdates()
-    setInterval(checkForUpdates, CHECK_INTERVAL_MS)
+    void checkForUpdates()
+    setInterval(() => void checkForUpdates(), CHECK_INTERVAL_MS)
 
     app.on('activate', () => {
       if (BrowserWindow.getAllWindows().length === 0) createWindow()
