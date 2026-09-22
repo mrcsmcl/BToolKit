@@ -37,9 +37,13 @@ export default function UpdateBanner(): ReactNode {
     )
   }
 
+  const restantes = status.segundosParaReiniciar
+
   return (
     <Bar>
-      Versão {status.version} pronta para instalar.
+      {restantes > 0
+        ? `Versão ${status.version} pronta. Reiniciando em ${restantes}s...`
+        : `Versão ${status.version} será aplicada ao fechar o app.`}
       <button
         type="button"
         onClick={() => window.api.updater.install()}
@@ -47,6 +51,15 @@ export default function UpdateBanner(): ReactNode {
       >
         Reiniciar agora
       </button>
+      {restantes > 0 && (
+        <button
+          type="button"
+          onClick={() => window.api.updater.adiar()}
+          className="ml-2 rounded-md border border-border px-2.5 py-1 text-xs font-medium hover:border-accent"
+        >
+          Agora não
+        </button>
+      )}
     </Bar>
   )
 }

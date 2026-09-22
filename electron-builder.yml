@@ -21,7 +21,9 @@ win:
   artifactName: ${productName}-${version}-setup.${ext}
 
 nsis:
-  oneClick: false
+  # oneClick: o instalador roda sem assistente. E o que permite a atualizacao
+  # automatica nao mostrar nenhum "Avancar" ao usuario.
+  oneClick: true
   perMachine: false
-  allowToChangeInstallationDirectory: true
+  allowToChangeInstallationDirectory: false
   deleteAppDataOnUninstall: false

@@ -93,12 +93,14 @@ export default function App(): ReactNode {
           </footer>
         </aside>
 
-        <main className="min-h-0 flex-1 overflow-y-auto">
+        <main className="min-h-0 flex-1 overflow-hidden">
           {active ? (
-            <div className="mx-auto max-w-3xl p-6">
+            <div className="mx-auto flex h-full max-w-6xl flex-col p-6">
               <h1 className="text-xl font-semibold">{active.name}</h1>
-              <p className="mt-1 mb-6 text-sm text-muted">{active.description}</p>
-              <active.Component />
+              <p className="mt-1 mb-5 text-sm text-muted">{active.description}</p>
+              <div className="min-h-0 flex-1">
+                <active.Component />
+              </div>
             </div>
           ) : (
             <div className="grid h-full place-items-center p-6 text-center">

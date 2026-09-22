@@ -1,6 +1,7 @@
 import { join } from 'node:path'
 import { app, BrowserWindow, shell } from 'electron'
 import log from 'electron-log'
+import { setupRepos } from './repos'
 import { checkForUpdates, setupUpdater } from './updater'
 
 // Uma hora entre verificações, para sessões que ficam abertas o dia todo.
@@ -94,6 +95,7 @@ if (!app.requestSingleInstanceLock()) {
   app.whenReady().then(() => {
     log.info(`BToolKit ${app.getVersion()} iniciando`)
     setupUpdater()
+    setupRepos()
     createWindow()
     checkForUpdates()
     setInterval(checkForUpdates, CHECK_INTERVAL_MS)

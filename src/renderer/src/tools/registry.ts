@@ -1,3 +1,4 @@
+import Repositorios from './Repositorios'
 import type { Tool } from './types'
 
 /**
@@ -5,4 +6,13 @@ import type { Tool } from './types'
  * e registre uma entrada aqui. Nada mais precisa mudar — a barra lateral, a
  * busca e o roteamento saem deste registro.
  */
-export const tools: Tool[] = []
+export const tools: Tool[] = [
+  {
+    id: 'repos',
+    name: 'Repositórios',
+    description: 'Troca de branch e atualização em lote de vários repositórios git.',
+    group: 'Git',
+    glyph: '⎇',
+    Component: Repositorios
+  }
+]
