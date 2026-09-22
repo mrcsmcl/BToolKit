@@ -1,6 +1,6 @@
 {
   "name": "btoolkit",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "Kit de ferramentas",
   "main": "./out/main/index.js",
   "author": "Marcos Candido",
