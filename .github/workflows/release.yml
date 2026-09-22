@@ -1,0 +1,95 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.bump.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Sobe a versão e cria a tag
+        id: bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # feat: -> minor, BREAKING CHANGE / tipo!: -> major, resto -> patch
+          MSG=$(git log -1 --pretty=%B)
+          if echo "$MSG" | grep -qE 'BREAKING CHANGE|^[a-z]+(\(.+\))?!:'; then
+            LEVEL=major
+          elif echo "$MSG" | grep -qE '^feat(\(.+\))?:'; then
+            LEVEL=minor
+          else
+            LEVEL=patch
+          fi
+
+          TAG=$(npm version "$LEVEL" --no-git-tag-version)
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+
+          git commit -am "chore(release): $TAG [skip ci]"
+          # Tag anotada e push explicito: --follow-tags ignora tags leves, e sem a tag
+          # no origin o gh release create falha.
+          git tag -a "$TAG" -m "$TAG"
+          git push origin HEAD:main
+          git push origin "$TAG"
+
+      - name: Cria o release rascunho
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Criado aqui para que o build só suba artefatos, e o release fique
+          # rascunho até o fim — o electron-updater ignora rascunhos.
+          gh release create "v${{ steps.bump.outputs.version }}" \
+            --draft \
+            --title "v${{ steps.bump.outputs.version }}" \
+            --generate-notes
+
+  build:
+    needs: version
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: v${{ needs.version.outputs.version }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build e upload do instalador
+        run: npm run release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish:
+    needs: [version, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Publica o release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release edit "v${{ needs.version.outputs.version }}" --draft=false --latest
