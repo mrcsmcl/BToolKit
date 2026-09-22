@@ -1,11 +1,17 @@
 import { join } from 'node:path'
 import { app, BrowserWindow, shell } from 'electron'
+import log from 'electron-log'
 import { checkForUpdates, setupUpdater } from './updater'
 
 // Uma hora entre verificações, para sessões que ficam abertas o dia todo.
 const CHECK_INTERVAL_MS = 60 * 60 * 1000
 
-function createWindow(): void {
+// Rede de segurança: se a primeira pintura não chegar, a janela aparece assim mesmo.
+// Sem isso um erro de carregamento deixa o processo vivo e invisível, segurando o lock
+// de instância única — e todo clique seguinte no atalho morre calado.
+const LIMITE_EXIBICAO_MS = 10_000
+
+function createWindow(): BrowserWindow {
   const win = new BrowserWindow({
     width: 1100,
     height: 720,
@@ -22,7 +28,34 @@ function createWindow(): void {
     }
   })
 
-  win.once('ready-to-show', () => win.show())
+  let exibida = false
+  const exibir = (motivo: string): void => {
+    if (exibida || win.isDestroyed()) return
+    exibida = true
+    clearTimeout(reserva)
+    log.info(`janela exibida (${motivo})`)
+    win.show()
+  }
+
+  const reserva = setTimeout(() => exibir('tempo limite'), LIMITE_EXIBICAO_MS)
+
+  win.once('ready-to-show', () => exibir('ready-to-show'))
+  win.webContents.once('did-finish-load', () => exibir('did-finish-load'))
+
+  win.webContents.on('did-fail-load', (_e, code, desc, url) => {
+    log.error(`falha ao carregar ${url}: ${desc} (${code})`)
+    exibir('did-fail-load')
+  })
+
+  win.webContents.on('render-process-gone', (_e, detalhe) =>
+    log.error('render process encerrou:', detalhe.reason)
+  )
+
+  win.webContents.on('console-message', (_e, nivel, mensagem, linha, origem) => {
+    if (nivel >= 2) log.warn(`[renderer] ${mensagem} (${origem}:${linha})`)
+  })
+
+  win.on('closed', () => clearTimeout(reserva))
 
   win.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url)
@@ -34,21 +67,32 @@ function createWindow(): void {
   } else {
     win.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+  return win
+}
+
+function focarOuCriar(): void {
+  const [win] = BrowserWindow.getAllWindows()
+
+  // Sem janela, o processo primário é inútil para quem clicou no atalho.
+  if (!win || win.isDestroyed()) {
+    createWindow()
+    return
+  }
+
+  if (win.isMinimized()) win.restore()
+  if (!win.isVisible()) win.show()
+  win.focus()
 }
 
 // Instância única: a segunda abertura foca a janela existente.
 if (!app.requestSingleInstanceLock()) {
   app.quit()
 } else {
-  app.on('second-instance', () => {
-    const [win] = BrowserWindow.getAllWindows()
-    if (win) {
-      if (win.isMinimized()) win.restore()
-      win.focus()
-    }
-  })
+  app.on('second-instance', focarOuCriar)
 
   app.whenReady().then(() => {
+    log.info(`BToolKit ${app.getVersion()} iniciando`)
     setupUpdater()
     createWindow()
     checkForUpdates()
