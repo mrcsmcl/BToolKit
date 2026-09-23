@@ -23,13 +23,22 @@ npm install
 npm run dev
 ```
 
+## Documentação
+
+- [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) — arquitetura, como adicionar uma ferramenta,
+  regras do contrato IPC e de acesso à rede, subsistemas existentes, como verificar o
+  trabalho e as armadilhas conhecidas do ambiente.
+- [docs/UI.md](docs/UI.md) — guia de interface: restrições, tokens, layout, componentes,
+  movimento e acessibilidade.
+
 ## Adicionar uma ferramenta
 
 1. Crie o componente em `src/renderer/src/tools/MinhaFerramenta.tsx`.
 2. Registre uma entrada em `src/renderer/src/tools/registry.ts`.
 
 Nada mais precisa mudar — a barra lateral, a busca e o roteamento são gerados a partir
-do registro.
+do registro. O passo a passo completo, inclusive para ferramenta que precisa do sistema
+operacional, está no [CONTRIBUTING.md](docs/CONTRIBUTING.md#4-adicionando-uma-ferramenta).
 
 ## Como funciona a atualização
 
