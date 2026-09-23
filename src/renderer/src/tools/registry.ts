@@ -1,3 +1,4 @@
+import { faCodeBranch } from '../components/Icone'
 import Repositorios from './Repositorios'
 import type { Tool } from './types'
 
@@ -12,7 +13,7 @@ export const tools: Tool[] = [
     name: 'Repositórios',
     description: 'Troca de branch e atualização em lote de vários repositórios git.',
     group: 'Git',
-    glyph: '⎇',
+    glyph: faCodeBranch,
     Component: Repositorios
   }
 ]

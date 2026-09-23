@@ -28,8 +28,15 @@ export default function UpdateBanner(): ReactNode {
   if (status.state === 'downloading') {
     return (
       <Bar icone={<Icone icon={faDownload} className="animate-pulsar" />}>
-        Baixando {status.version}… {status.percent}%
-        <span className="ml-3 inline-block h-1 w-32 overflow-hidden rounded-full bg-border align-middle">
+        <span>Baixando {status.version}… {status.percent}%</span>
+        <span
+          role="progressbar"
+          aria-label={`Download da versão ${status.version}`}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={status.percent}
+          className="ml-2 inline-block h-1 w-32 overflow-hidden rounded-full bg-border align-middle"
+        >
           <span
             className="block h-full rounded-full bg-accent transition-[width] duration-300 ease-out"
             style={{ width: `${status.percent}%` }}
@@ -43,13 +50,15 @@ export default function UpdateBanner(): ReactNode {
 
   return (
     <Bar icone={<Icone icon={faCircleCheck} />}>
-      {restantes > 0
-        ? `Versão ${status.version} pronta. Reiniciando em ${restantes}s…`
-        : `Versão ${status.version} será aplicada ao fechar o app.`}
+      <span>
+        {restantes > 0
+          ? `Versão ${status.version} pronta. Reiniciando em ${restantes}s…`
+          : `Versão ${status.version} será aplicada ao fechar o app.`}
+      </span>
       <button
         type="button"
         onClick={() => window.api.updater.install()}
-        className="ml-3 flex items-center gap-1.5 rounded-md bg-accent px-2.5 py-1 text-xs font-semibold text-white transition hover:brightness-110 active:scale-95"
+        className="ml-2 flex h-7 items-center gap-1.5 rounded-md bg-accent px-2.5 text-[11px] font-semibold text-bg transition hover:brightness-110 active:scale-95"
       >
         <Icone icon={faArrowsRotate} />
         Reiniciar agora
@@ -58,7 +67,7 @@ export default function UpdateBanner(): ReactNode {
         <button
           type="button"
           onClick={() => window.api.updater.adiar()}
-          className="ml-2 rounded-md border border-border px-2.5 py-1 text-xs font-medium transition hover:border-accent active:scale-95"
+          className="ml-1 h-7 rounded-md border border-border px-2.5 text-[11px] font-medium transition hover:border-muted active:scale-95"
         >
           Agora não
         </button>
@@ -78,14 +87,15 @@ function Bar({
 }): ReactNode {
   return (
     <div
-      className={`animate-descer flex items-center gap-2.5 border-b px-4 py-2 text-sm ${
+      role={tom === 'erro' ? 'alert' : 'status'}
+      className={`animate-descer flex shrink-0 flex-wrap items-center gap-2 border-b px-4 py-2 text-xs ${
         tom === 'erro'
           ? 'border-red-900/60 bg-red-950/40 text-red-300'
-          : 'border-accent/40 bg-accent/10 text-accent-fg'
+          : 'border-border bg-surface text-accent-fg'
       }`}
     >
-      {icone}
-      <span className="flex items-center">{children}</span>
+      <span className="shrink-0">{icone}</span>
+      <span className="flex min-w-0 flex-1 flex-wrap items-center gap-y-2">{children}</span>
     </div>
   )
 }

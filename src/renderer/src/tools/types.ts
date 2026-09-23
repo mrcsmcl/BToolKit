@@ -1,3 +1,4 @@
+import type { IconDefinition } from '@fortawesome/fontawesome-svg-core'
 import type { ComponentType } from 'react'
 
 export interface Tool {
@@ -6,7 +7,7 @@ export interface Tool {
   description: string
   /** Agrupamento na barra lateral. */
   group: string
-  /** Glifo curto mostrado no ícone da ferramenta. */
-  glyph: string
+  /** Ícone Font Awesome importado por referência. */
+  glyph: IconDefinition
   Component: ComponentType
 }
