@@ -1,9 +1,18 @@
 import { faGithub } from '@fortawesome/free-brands-svg-icons'
 import {
   faArrowsRotate,
+  faChevronRight,
   faCircleCheck,
+  faClockRotateLeft,
+  faCodeBranch,
   faDownload,
-  faTriangleExclamation
+  faFolderOpen,
+  faHouse,
+  faMagnifyingGlass,
+  faRotate,
+  faTerminal,
+  faTriangleExclamation,
+  faXmark
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
@@ -15,8 +24,17 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 export {
   FontAwesomeIcon as Icone,
   faArrowsRotate,
+  faChevronRight,
   faCircleCheck,
+  faClockRotateLeft,
+  faCodeBranch,
   faDownload,
+  faFolderOpen,
   faGithub,
-  faTriangleExclamation
+  faHouse,
+  faMagnifyingGlass,
+  faRotate,
+  faTerminal,
+  faTriangleExclamation,
+  faXmark
 }

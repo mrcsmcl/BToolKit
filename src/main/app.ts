@@ -1,5 +1,6 @@
 import { ipcMain, shell } from 'electron'
 import pkg from '../../package.json'
+import { carregarAvatarContribuidor, carregarHistorico } from './historico'
 
 /**
  * Fonte única da URL: o mesmo campo que o electron-builder usa para publicar.
@@ -18,6 +19,10 @@ function urlRepositorio(): string {
 
 export function setupApp(): void {
   ipcMain.handle('app:url-repositorio', () => urlRepositorio())
+  ipcMain.handle('app:historico', () => carregarHistorico())
+  ipcMain.handle('app:avatar-contribuidor', (_evento, commitHash: unknown) =>
+    carregarAvatarContribuidor(commitHash, urlRepositorio())
+  )
 
   ipcMain.handle('app:abrir-repositorio', async () => {
     const url = urlRepositorio()

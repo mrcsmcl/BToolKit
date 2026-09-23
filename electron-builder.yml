@@ -10,6 +10,10 @@ files:
   - out/**
   - package.json
 
+extraResources:
+  - from: .generated/historico.json
+    to: historico.json
+
 publish:
   provider: github
   owner: mrcsmcl

@@ -10,12 +10,13 @@
     "url": "https://github.com/mrcsmcl/BToolKit.git"
   },
   "scripts": {
+    "historico": "node scripts/gerar-historico.mjs",
     "dev": "electron-vite dev",
     "start": "electron-vite preview",
     "build": "npm run typecheck && electron-vite build",
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
-    "build:win": "npm run build && electron-builder --win --publish never",
-    "release": "npm run build && electron-builder --publish always"
+    "build:win": "npm run build && npm run historico && electron-builder --win --publish never",
+    "release": "npm run build && npm run historico && electron-builder --publish always"
   },
   "dependencies": {
     "electron-log": "^5.2.0",
