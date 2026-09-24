@@ -55,8 +55,11 @@ function createWindow(): BrowserWindow {
     log.error('render process encerrou:', detalhe.reason)
   )
 
-  win.webContents.on('console-message', (_e, nivel, mensagem, linha, origem) => {
-    if (nivel >= 2) log.warn(`[renderer] ${mensagem} (${origem}:${linha})`)
+  // Assinatura por objeto: a forma posicional foi depreciada e avisa no console.
+  win.webContents.on('console-message', ({ level, message, sourceId, lineNumber }) => {
+    if (level === 'warning' || level === 'error') {
+      log.warn(`[renderer] ${message} (${sourceId}:${lineNumber})`)
+    }
   })
 
   win.on('closed', () => clearTimeout(reserva))
