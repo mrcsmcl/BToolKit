@@ -17,6 +17,11 @@ outra.
 
 O app se atualiza sozinho a partir dos releases do GitHub, sem assistente de instalação.
 
+**São dois produtos com o mesmo código de ferramenta:** o aplicativo Electron e um site no
+GitHub Pages. O site serve para baixar o app e também executa, ali mesmo no navegador, as
+ferramentas que não precisam do sistema operacional. Quem decide o que roda onde é o campo
+`runtime` do registro — ver §4.3.
+
 ---
 
 ## 2. Começando
@@ -36,6 +41,10 @@ npm run dev
 | `npm run start` | Roda o bundle de produção, sem empacotar |
 | `npm run historico` | Gera `.generated/historico.json` (ver §6.2) |
 | `npm run build:win` | `build` + `historico` + instalador local (ver §10) |
+| `npm run dev:site` | Sobe o site com recarga automática |
+| `npm run build:site` | `typecheck` + guarda de runtime + site em `dist-web/` |
+| `npm run preview:site` | Serve `dist-web/` como o Pages serviria |
+| `npm run checar:runtime` | Confere se ferramenta universal não usa `window.api` |
 
 ---
 
@@ -44,6 +53,7 @@ npm run dev
 ```
 .github/workflows/   CI: versão, tag, release
 .generated/          saída do npm run historico — ignorada pelo git
+dist-web/            saída do npm run build:site — ignorada pelo git
 docs/                CONTRIBUTING.md, UI.md e ui-concepts/ (estudo visual, não é código)
 resources/           icon.png e icon.ico do app
 scripts/             utilitários de build
@@ -69,11 +79,18 @@ src/
 │   └── index.ts         a ponte: a ÚNICA superfície que a tela enxerga
 ├── renderer/            processo de interface — React, sem acesso ao sistema
 │   └── src/
-│       ├── App.tsx      casca: barra de título, rail, roteamento
+│       ├── App.tsx      casca dos DOIS produtos: barra de título, rail, roteamento
+│       ├── ambiente.tsx contexto que diz se está no app ou no site
 │       ├── components/  Inicio, Historico, UpdateBanner, Icone
 │       ├── hooks/       hooks compartilhados
-│       ├── index.css    tokens, keyframes e as classes da casca (ver UI.md)
+│       ├── tokens.css   paleta, keyframes, reset — compartilhado com o site
+│       ├── index.css    classes da casca do app (ver UI.md)
 │       └── tools/       uma ferramenta por arquivo + registry.ts
+├── web/                 entrada do site — NÃO tem casca própria
+│   ├── App.tsx          provê o ambiente e renderiza a mesma casca do app
+│   ├── api-ausente.ts   Proxy que explica a falta de window.api no navegador
+│   ├── download.ts      consulta o release mais recente
+│   └── web.css          importa o index.css e acrescenta o pouco que é do site
 └── shared/              tipos usados pelos dois lados
     ├── app.ts           histórico e avatares
     ├── repos.ts         ferramenta Repositórios
@@ -109,8 +126,8 @@ export default function MinhaFerramenta(): ReactNode {
 `src/renderer/src/tools/registry.ts`:
 
 ```ts
+import { lazy } from 'react'
 import { faWandMagicSparkles } from '../components/Icone'
-import MinhaFerramenta from './MinhaFerramenta'
 
 export const tools: Tool[] = [
   // ...
@@ -120,10 +137,14 @@ export const tools: Tool[] = [
     description: 'Uma frase dizendo o que ela faz.',
     group: 'Utilidades',
     glyph: faWandMagicSparkles,
-    Component: MinhaFerramenta
+    runtime: 'universal',
+    Component: lazy(() => import('./MinhaFerramenta'))
   }
 ]
 ```
+
+O `lazy` não é preferência de estilo: é o que mantém o código de ferramenta `desktop` fora
+do que o navegador baixa. Import direto no registro arrasta tudo para o bundle inicial.
 
 Acabou. Menu, busca, agrupamento, tela inicial e roteamento são todos gerados a partir desse
 array — não existe arquivo de rotas para editar.
@@ -137,7 +158,8 @@ O contrato do registro está em [`tools/types.ts`](../src/renderer/src/tools/typ
 | `description` | `string` | Uma frase. Aparece na tela inicial e alimenta a busca. |
 | `group` | `string` | Cabeçalho no menu. Reaproveite um existente quando fizer sentido. |
 | `glyph` | `IconDefinition` | Ícone Font Awesome **importado por referência**, nunca o nome em string. |
-| `Component` | `ComponentType` | O componente, sem props. |
+| `runtime` | `'universal' \| 'desktop'` | Onde a ferramenta consegue rodar. Obrigatório — ver §4.3. |
+| `Component` | `LazyExoticComponent` | `lazy(() => import('./MinhaFerramenta'))`, nunca o import direto. |
 
 Ícones são registrados num ponto só, [`components/Icone.tsx`](../src/renderer/src/components/Icone.tsx),
 que reexporta cada `faX` usado. Importar por referência é o que mantém o tree-shaking
@@ -145,6 +167,19 @@ funcionando — ver [UI.md §8](UI.md#8-iconografia).
 
 O componente recebe uma área com altura definida e deve se virar dentro dela. Use `h-full`
 e `min-h-0` nos contêineres que precisam rolar.
+
+**O CSS da ferramenta mora junto dela**, não no `index.css`:
+
+```
+tools/MinhaFerramenta.tsx          →  import './minha-ferramenta/minha-ferramenta.css'
+tools/minha-ferramenta/minha-ferramenta.css
+```
+
+O `index.css` é a casca do **app** e o site não o carrega. Regra escrita depois de a
+ferramenta Documentos aparecer sem estilo nenhum no site, por estar lá dentro. Como bônus,
+o CSS acompanha o chunk da ferramenta e também vira carregamento sob demanda.
+
+O que é comum aos dois produtos — paleta, keyframes, reset — vive em `tokens.css`.
 
 ### 4.2 Ferramenta que precisa do sistema operacional
 
@@ -217,7 +252,35 @@ precisa declarar nada à mão: `window.api.minhaFerramenta.listar` já vem tipad
 **Passo 6 — a tela**, como em §4.1, consumindo `window.api.minhaFerramenta` e seguindo
 [UI.md](UI.md).
 
-### 4.3 Eventos contínuos (progresso, log, fluxo)
+### 4.3 Escolhendo o runtime
+
+Todo item do registro declara onde consegue rodar. Não existe valor padrão: o typecheck
+obriga a decisão, porque herdar o default errado é exatamente o tipo de engano que só
+aparece em produção.
+
+| Valor | Quando | Onde aparece |
+| --- | --- | --- |
+| `universal` | Só precisa do navegador: cálculo, texto, formatação | Site **e** app |
+| `desktop` | Usa `window.api` — disco, processo, rede pelo main | Só no app |
+
+No site, ferramenta `desktop` continua no catálogo, mas como cartão com o selo "Requer o
+app" e um botão de download. Ela nunca é montada, e o chunk dela nunca é baixado.
+
+**Duas coisas que a escolha implica.**
+
+*Não dá para ser universal e usar a ponte.* No navegador `window.api` não existe. A
+declaração de tipo vale para a árvore inteira, então o TypeScript **não** pega o engano —
+quem pega é `npm run checar:runtime`, que segue os imports da ferramenta e recusa
+`window.api` em qualquer arquivo alcançável a partir de um componente universal. O script
+roda dentro do `build:site`, e o entry do site ainda instala um `window.api` falso que
+lança mensagem explicativa, caso algo escape.
+
+*`universal` é decisão de exposição, não só técnica.* O site é público. Uma ferramenta
+marcada assim fica ao alcance de qualquer pessoa na internet, indexável. Cálculo de dígito
+verificador não tem problema nenhum; qualquer coisa que toque regra, dado ou nomenclatura
+interna da empresa deve ficar `desktop`, mesmo que tecnicamente rodasse no navegador.
+
+### 4.4 Eventos contínuos (progresso, log, fluxo)
 
 `invoke`/`handle` serve para pergunta e resposta. Para progresso durante uma operação longa,
 o processo principal empurra eventos e o preload devolve uma função de cancelamento:
@@ -243,7 +306,7 @@ A tela mostra **o que o evento disse que aconteceu**, não o que ela supõe esta
 O painel de atividade de Repositórios lista conclusões reais recebidas por `onProgresso`;
 ele não inventa qual repositório "começou" a executar.
 
-### 4.4 Preferências da ferramenta
+### 4.5 Preferências da ferramenta
 
 Grave em `app.getPath('userData')`, um arquivo JSON por ferramenta. Veja `carregarConfig` /
 `salvarConfig` em `src/main/repos/index.ts`. Falha ao salvar preferência não deve interromper
@@ -344,6 +407,46 @@ de fora da mensagem — inclusive quando o repositório é pulado.
 
 ---
 
+### 6.4 O site
+
+O site **não tem casca própria**. Ele monta a mesma `App.tsx` do aplicativo — mesma rail,
+mesmo Início, mesmo roteamento — e só informa onde está rodando:
+
+```tsx
+<AmbienteProvider valor={{ tipo: 'site', download, urlRepositorio }}>
+  <AppShell />
+</AmbienteProvider>
+```
+
+`src/web/App.tsx` tem 29 linhas e nenhuma decisão de interface. Foi uma reescrita: a
+primeira versão tinha landing própria, catálogo próprio e navegação própria, o que
+duplicava conceito e ia divergir do app na primeira mudança.
+
+**Onde os dois divergem** — os únicos pontos que consultam `useAmbiente()`:
+
+| Ponto | App | Site |
+| --- | --- | --- |
+| Faixa do topo | área de arrastar a janela | botão "Baixar para Windows" |
+| Banner de atualização | aparece | não existe |
+| Versão no rodapé | `window.api.updater` | release consultado na API |
+| Botão do GitHub | abre o Changelog | abre o repositório |
+| Botão de atualizar | verifica atualização | baixa o app |
+| Ferramenta `desktop` | abre normalmente | cadeado na rail e painel `RequerApp` |
+
+Acrescentar divergência exige passar por essa tabela. Se a lista começar a crescer, é
+sinal de que a casca está virando duas — melhor rever do que continuar remendando.
+
+Build por `vite.config.web.ts`, saída em `dist-web/`, publicação por
+[pages.yml](../.github/workflows/pages.yml) a cada push na `main`. `base` é `/BToolKit/`
+porque project page mora num subcaminho; passe `BASE_SITE` para mudar.
+
+**O botão de download não tem link fixo.** O nome do instalador carrega a versão
+(`BToolKit-0.1.4-setup.exe`), então `download.ts` consulta a API pública do GitHub para
+montar o link direto e mostrar versão, tamanho e data. Em qualquer falha — rede fora,
+limite de requisições, release sem `.exe` — cai para `/releases/latest`. Por isso o site
+**não** precisa ser republicado a cada release.
+
+
 ## 7. Convenções de código
 
 - **TypeScript estrito.** Sem `any`. Anote o retorno de funções exportadas.
@@ -427,14 +530,16 @@ nada fora do app. Apague o arquivo quando terminar.
 
 ### 8.3 Antes de abrir o PR
 
-- [ ] `npm run typecheck` passa
+- [ ] `npm run typecheck` passa (cobre app, renderer e site)
 - [ ] `npm run build` passa
+- [ ] `npm run build:site` passa, se mexeu em ferramenta ou registro
 - [ ] A ferramenta foi exercitada de fato, não só compilada
 - [ ] Operação longa pode ser cancelada e o cancelamento aparece na tela
 - [ ] Erro previsível vira mensagem legível, não exceção silenciosa
 - [ ] Nenhum handler IPC genérico foi introduzido
 - [ ] Requisição de saída, se houver, segue §5.2
 - [ ] O checklist de [UI.md §12](UI.md#12-checklist-de-revisão) passa
+- [ ] Ferramenta universal foi aberta no site (`npm run preview:site`), não só no app
 - [ ] Arquivos temporários de teste removidos
 
 ---
@@ -455,6 +560,9 @@ anotada, abre um release rascunho, builda o instalador Windows e só então tira
 
 **O bump lê apenas o último commit da `main`.** Empurrar um `feat:` junto com um `chore:`
 depois dele resulta em patch. Se a ordem importa para você, empurre em levas separadas.
+
+O site é publicado por um fluxo próprio, também a cada push na `main`. Os dois convivem: o
+commit de versão do release traz `[skip ci]`, então não dispara nova publicação.
 
 Commits e descrições de PR vão **sem linha de atribuição** de ferramenta de IA.
 

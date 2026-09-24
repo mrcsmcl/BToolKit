@@ -21,8 +21,13 @@ via npm ou arquivo local e são empacotados pelo Vite.
 Navegação, busca, agrupamento e ferramenta ativa saem de
 [`tools/registry.ts`](../src/renderer/src/tools/registry.ts), no formato de
 [`tools/types.ts`](../src/renderer/src/tools/types.ts): `id`, `name`, `description`,
-`group`, `glyph`, `Component`. Adicionar ferramenta não pode exigir uma segunda declaração
-em rota, menu ou layout.
+`group`, `glyph`, `runtime`, `Component`. Adicionar ferramenta não pode exigir uma segunda
+declaração em rota, menu ou layout.
+
+O mesmo registro alimenta **duas** cascas: o app e o site. `runtime` diz qual delas executa
+a ferramenta — ver [CONTRIBUTING §4.3](CONTRIBUTING.md#43-escolhendo-o-runtime). Uma
+ferramenta precisa aguentar as duas molduras: a área útil do app tem altura fixa, a do site
+rola com a página.
 
 ### 1.3 A tela não fala diretamente com o sistema
 
@@ -144,14 +149,26 @@ quando repetir os utilitários no JSX tornaria a marcação ilegível.
 
 Convenção de nome: prefixo por área, em kebab-case, com modificador em `--`.
 
-| Prefixo | Área |
-| --- | --- |
-| `app-` | casca: barra de título, rail, scrim, corpo |
-| `home-` | tela inicial |
-| `history-` | changelog e contribuidores |
-| `repos-` | ferramenta Repositórios |
+| Prefixo | Área | Arquivo |
+| --- | --- | --- |
+| `app-` | casca do app: barra de título, rail, scrim, corpo | `index.css` |
+| `tool-` | moldura que toda ferramenta usa (hoje, a faixa de título) | `index.css` |
+| `home-` | tela inicial | `index.css` |
+| `history-` | changelog e contribuidores | `index.css` |
+| `site-` | o pouco que só o site tem: botão de download, painel RequerApp | `web/web.css` |
+| `repos-` | ferramenta Repositórios | `index.css` |
+| `doc-` | ferramenta Documentos | `tools/documentos/documentos.css` |
 
-Uma ferramenta nova usa o próprio prefixo. **Nenhuma classe cita hexadecimal** — cor vem
+Uma ferramenta nova usa o próprio prefixo.
+
+**E o CSS dela mora junto dela**, num arquivo importado pelo componente — não no
+`index.css`. O `index.css` é a casca do app, e o site não o carrega: ferramenta universal
+com estilo lá dentro aparece sem formatação nenhuma no navegador. Foi o que aconteceu com a
+Documentos antes de a regra existir. O `repos-` ainda está no `index.css` por ser anterior
+a isso; como a ferramenta é `desktop`, não quebra nada, mas o lugar certo é junto dela.
+
+O que os dois produtos compartilham — paleta, keyframes, reset, `prefers-reduced-motion` —
+vive em [`tokens.css`](../src/renderer/src/tokens.css), importado pelas duas cascas. **Nenhuma classe cita hexadecimal** — cor vem
 sempre de token (`var(--color-surface)` ou a classe Tailwind equivalente). Trocar a paleta
 tem que ser uma edição em um lugar só.
 
@@ -244,6 +261,22 @@ inventa qual repositório começou a executar.
 
 Saída técnica monoespaçada, limitada a aproximadamente 500 linhas e com rolagem automática.
 Mantém detalhes de erro e comandos para recuperar stash.
+
+### Faixa de título da ferramenta
+
+`.tool-header`, definida no `index.css` porque é **moldura**, não conteúdo de uma
+ferramenta específica. Altura de `var(--altura-faixa-titulo)`, borda inferior de 1 px,
+18 px de recuo lateral. Ocupa a largura inteira da ferramenta, inclusive por cima de
+painéis laterais: à esquerda o ícone e o título, à direita o indicador de estado ou a ação
+principal.
+
+**A faixa do topo da rail usa a mesma medida, de propósito.** As duas bordas inferiores
+ficam na mesma altura e formam uma linha só atravessando a janela. Elas estavam com 52 e
+62 px e o desencontro de 10 px era visível. Por isso a altura virou um token em
+`tokens.css` — mudar em um lugar move as duas.
+
+Uma ferramenta que não usar `.tool-header` quebra essa continuidade, e é o tipo de coisa
+que só se percebe quando já está em produção.
 
 ### Cartão de ferramenta (Início)
 
@@ -346,4 +379,33 @@ fixo: repositório, branch, stash, pasta raiz, atualizar, verificar e cancelar.
 - [ ] Breakpoint novo reaproveita a tabela de §3.5, ou a atualiza com justificativa.
 - [ ] Ferramenta nova aparece em Início e na rail só com a entrada no registro.
 - [ ] Recurso de rede degrada em silêncio, sem buraco no layout.
-- [ ] `npm run typecheck` e `npm run build` passam.
+- [ ] CSS de ferramenta está no arquivo da ferramenta, não no `index.css`.
+- [ ] Ferramenta universal foi vista no site, não só no app.
+- [ ] Selo de runtime correto no cartão do catálogo.
+- [ ] Ferramenta usa `.tool-header`, e a linha dela continua a da rail.
+- [ ] `npm run typecheck`, `npm run build` e `npm run build:site` passam.
+
+## 13. O site
+
+**É a mesma casca.** O site monta a `App.tsx` do aplicativo — rail, Início, roteamento,
+tokens, animações — e carrega o `index.css` inteiro. Não existe segunda identidade visual,
+e não deve passar a existir: qualquer tela nova aparece nos dois produtos de graça.
+
+As únicas diferenças visuais, todas comandadas por `useAmbiente()`:
+
+- **Faixa do topo:** no app é área de arrastar a janela; no site, um botão "Baixar para
+  Windows" à direita.
+- **Ferramenta `desktop` na rail:** cadeado à direita do nome quando expandida, e o
+  `aria-label` diz "requer o aplicativo".
+- **Cartão no Início:** opacidade reduzida e a ação vira "Requer o app" com cadeado.
+- **Abrir uma `desktop` no site:** em vez da ferramenta, o painel `RequerApp` — ícone,
+  o porquê em uma frase e o botão de download. O componente não é montado, então o chunk
+  dela nem é baixado.
+- **Rodapé da rail:** GitHub abre o repositório em vez do Changelog, e o botão de
+  atualizar vira o de download.
+
+O Changelog não aparece no site: ele lê o histórico pelo processo principal.
+
+Único ponto de rede do site é a API do GitHub para o release mais recente, refletido na CSP
+do `index.html` com `connect-src https://api.github.com`. Recurso novo de rede precisa
+entrar ali também.

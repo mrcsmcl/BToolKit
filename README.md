@@ -23,6 +23,12 @@ npm install
 npm run dev
 ```
 
+## Site
+
+O produto também tem uma página no GitHub Pages, com download e as ferramentas que rodam no
+navegador. `npm run dev:site` para desenvolver, `npm run build:site` para gerar em
+`dist-web/`. Publicada automaticamente a cada push na `main`.
+
 ## Documentação
 
 - [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) — arquitetura, como adicionar uma ferramenta,
