@@ -1,0 +1,195 @@
+/* Camada de componentes — prefixo ui-
+ *
+ * Uma definição por peça, usada por toda tela do app e do site. Existe porque
+ * proximidade não é contrato: `repos-` e `history-` moravam no mesmo arquivo e
+ * mesmo assim divergiram (campo de 32px contra 34px, quatro tamanhos de rótulo,
+ * quatro alturas de botão). Só uma definição única impede isso.
+ *
+ * Diferente de tela precisa sobrescrever de propósito, e a sobrescrita aparece
+ * na revisão. O que é exclusivo de uma ferramenta continua no CSS dela.
+ */
+
+/* ---------------------------------------------------------------- botão */
+
+.ui-btn {
+  display: inline-flex;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid var(--color-border);
+  border-radius: 7px;
+  padding: 0 12px;
+  background: var(--color-surface);
+  color: var(--color-fg);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition:
+    transform 130ms ease,
+    color 140ms ease,
+    border-color 140ms ease,
+    background 140ms ease,
+    filter 140ms ease,
+    opacity 140ms ease;
+}
+
+.ui-btn:hover:not(:disabled) {
+  border-color: var(--color-muted);
+  background: var(--color-surface-2);
+}
+
+.ui-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.ui-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.ui-btn--primario {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-bg);
+}
+
+.ui-btn--primario:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  filter: brightness(1.1);
+}
+
+.ui-btn--perigo {
+  border-color: transparent;
+  background: transparent;
+  color: #e38282;
+}
+
+.ui-btn--perigo:hover:not(:disabled) {
+  border-color: transparent;
+  background: rgb(227 130 130 / 10%);
+}
+
+/* Só ícone: vira quadrado, sem recuo lateral. */
+.ui-btn--icone {
+  width: 32px;
+  padding: 0;
+}
+
+/* Para caber na faixa de 40px do topo. */
+.ui-btn--sm {
+  height: 26px;
+  padding: 0 10px;
+  font-size: 10px;
+}
+
+.ui-btn--sm.ui-btn--icone {
+  width: 26px;
+  padding: 0;
+}
+
+/* Ação de destaque isolada, como o download no painel RequerApp. */
+.ui-btn--lg {
+  height: 36px;
+  border-radius: 9px;
+  padding: 0 18px;
+  font-size: 12.5px;
+}
+
+/* --------------------------------------------------------------- campo */
+
+.ui-input,
+.ui-textarea {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: 7px;
+  background: var(--color-surface);
+  color: var(--color-fg);
+  font-size: 10.5px;
+  outline: none;
+  transition:
+    border-color 150ms ease,
+    background 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.ui-input {
+  height: 32px;
+  padding: 0 9px;
+}
+
+.ui-textarea {
+  padding: 8px 9px;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.ui-input:hover:not(:disabled):not(:focus),
+.ui-textarea:hover:not(:disabled):not(:focus) {
+  border-color: color-mix(in srgb, var(--color-fg) 22%, var(--color-border));
+}
+
+.ui-input:focus,
+.ui-textarea:focus {
+  border-color: color-mix(in srgb, var(--color-fg) 42%, var(--color-border));
+  box-shadow: 0 0 0 3px rgb(223 227 232 / 6%);
+}
+
+.ui-input:disabled,
+.ui-textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Caminho, branch, documento: tudo que se lê caractere a caractere. */
+.ui-mono {
+  font-family: Consolas, 'Cascadia Mono', monospace;
+}
+
+/* -------------------------------------------------------------- rótulo */
+
+.ui-label {
+  display: block;
+  margin: 0 0 6px;
+  color: var(--color-muted);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ---------------------------------------------------------------- selo */
+
+.ui-selo {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 3px 9px;
+  color: var(--color-muted);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------- estado vazio */
+
+.ui-vazio {
+  display: flex;
+  min-height: 140px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 16px;
+  color: var(--color-muted);
+  font-size: 10.5px;
+  line-height: 1.55;
+  text-align: center;
+}
+
+.ui-vazio svg {
+  color: color-mix(in srgb, var(--color-muted) 70%, transparent);
+  font-size: 15px;
+}

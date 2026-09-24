@@ -18,6 +18,7 @@ import {
   faTerminal,
   faXmark
 } from '../components/Icone'
+import { Botao } from '../components/ui'
 
 type Linha = RepoInfo & { status: string; desfecho: Outcome | 'executando' | null }
 
@@ -418,7 +419,6 @@ export default function Repositorios(): ReactNode {
           </div>
         </div>
         <Botao
-          variante="fantasma"
           className="repos-reload-button"
           disabled={bloqueado}
           onClick={carregar}
@@ -432,17 +432,16 @@ export default function Repositorios(): ReactNode {
         <section className="repos-main">
           <div className="repos-controls">
             <label className="min-w-0">
-              <span className="repos-field-label">Pasta raiz</span>
+              <span className="ui-label">Pasta raiz</span>
               <input
                 value={raiz}
                 onChange={(e) => setRaiz(e.target.value)}
                 disabled={bloqueado}
-                className="repos-input"
+                className="ui-input ui-mono"
               />
             </label>
 
             <Botao
-              variante="fantasma"
               disabled={bloqueado}
               onClick={async () => {
                 const escolhida = await window.api.repos.escolherPasta(raiz)
@@ -462,7 +461,7 @@ export default function Repositorios(): ReactNode {
                 }
               }}
             >
-              <label htmlFor="repos-branch" className="repos-field-label">
+              <label htmlFor="repos-branch" className="ui-label">
                 Branch
               </label>
               <div className="relative">
@@ -487,7 +486,7 @@ export default function Repositorios(): ReactNode {
                   onKeyDown={navegarSugestoes}
                   disabled={bloqueado}
                   placeholder="Buscar branch…"
-                  className="repos-input pr-8 placeholder:text-muted"
+                  className="ui-input ui-mono pr-8 placeholder:text-muted"
                 />
                 {branchesConhecidas.length > 0 && (
                   <span className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-[9px] text-muted">
@@ -625,7 +624,6 @@ export default function Repositorios(): ReactNode {
 
             <div className="repos-action-row__actions">
               <Botao
-                variante="fantasma"
                 disabled={bloqueado || linhas.length === 0}
                 onClick={() => executar('update', 'Atualizando (fetch + fast-forward)', alvos)}
               >
@@ -663,7 +661,7 @@ export default function Repositorios(): ReactNode {
 
           <div className="repos-events" aria-label="Resultados recentes">
             {atividade.length === 0 ? (
-              <div className="repos-events-empty">
+              <div className="ui-vazio repos-events-empty">
                 <p>
                   Os resultados de cada repositório aparecerão aqui durante uma operação.
                 </p>
@@ -703,23 +701,4 @@ export default function Repositorios(): ReactNode {
       </div>
     </div>
   )
-}
-
-function Botao({
-  variante = 'solido',
-  className = '',
-  ...props
-}: React.ComponentProps<'button'> & {
-  variante?: 'solido' | 'fantasma' | 'perigo'
-}): ReactNode {
-  const base =
-    'inline-flex h-8 items-center justify-center gap-2 rounded-md px-3 text-[11px] font-semibold whitespace-nowrap transition disabled:cursor-not-allowed disabled:opacity-35'
-  const cor =
-    variante === 'solido'
-      ? 'border border-accent bg-accent text-bg hover:brightness-110'
-      : variante === 'perigo'
-        ? 'border border-transparent bg-transparent text-red-400 hover:bg-red-500/10'
-        : 'border border-border bg-surface text-fg hover:border-muted hover:bg-surface-2'
-
-  return <button type="button" {...props} className={`${base} ${cor} ${className}`} />
 }

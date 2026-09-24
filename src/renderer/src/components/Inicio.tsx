@@ -17,7 +17,7 @@ export default function Inicio({ onSelectTool }: InicioProps): ReactNode {
     <div className="home-screen">
       <header className="home-header">
         <div>
-          <p className="home-eyebrow">Visão geral</p>
+          <p className="ui-label home-eyebrow">Visão geral</p>
           <h1>BToolKit</h1>
           <p>
             {noApp
@@ -25,7 +25,7 @@ export default function Inicio({ onSelectTool }: InicioProps): ReactNode {
               : 'Use aqui as que rodam no navegador; as demais vêm no aplicativo.'}
           </p>
         </div>
-        <span className="home-count">
+        <span className="ui-selo home-count">
           {noApp
             ? `${quantidade} ${quantidade === 1 ? 'ferramenta disponível' : 'ferramentas disponíveis'}`
             : `${universais} de ${quantidade} no navegador`}
@@ -62,7 +62,7 @@ export default function Inicio({ onSelectTool }: InicioProps): ReactNode {
           })}
         </section>
       ) : (
-        <div className="home-empty">
+        <div className="ui-vazio home-empty">
           <p>Nenhuma ferramenta registrada.</p>
           <code>src/renderer/src/tools/registry.ts</code>
         </div>

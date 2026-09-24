@@ -14,6 +14,7 @@ import {
   faShieldHalved,
   faXmark
 } from '../components/Icone'
+import { Botao } from '../components/ui'
 import {
   DOCUMENTOS,
   documentoPorTipo,
@@ -181,6 +182,7 @@ export default function Documentos(): ReactNode {
               </label>
               <input
                 id="doc-busca"
+                className="ui-input"
                 value={busca}
                 onChange={(evento) => setBusca(evento.target.value)}
                 placeholder="Buscar documento…"
@@ -222,7 +224,7 @@ export default function Documentos(): ReactNode {
               })}
 
               {documentosFiltrados.length === 0 && (
-                <div className="doc-catalog-empty">
+                <div className="ui-vazio doc-catalog-empty">
                   <Icone icon={faMagnifyingGlass} aria-hidden="true" />
                   <span>Nenhum documento encontrado.</span>
                 </div>
@@ -273,7 +275,7 @@ export default function Documentos(): ReactNode {
                   <span>Validação instantânea</span>
                 </header>
                 <p>Cole uma coluna. Aceita linha, vírgula ou ponto e vírgula.</p>
-                <label htmlFor="doc-entrada" className="doc-label">
+                <label htmlFor="doc-entrada" className="ui-label">
                   Valores de {documento.rotulo}
                 </label>
                 <textarea
@@ -282,7 +284,7 @@ export default function Documentos(): ReactNode {
                   spellCheck={false}
                   onChange={(evento) => setEntrada(evento.target.value)}
                   placeholder={`Cole valores de ${documento.rotulo}…`}
-                  className="doc-textarea"
+                  className="ui-textarea ui-mono doc-textarea"
                 />
                 <div className="doc-editor-summary" role="status" aria-live="polite">
                   <span>{linhas.length} processado(s)</span>
@@ -311,7 +313,7 @@ export default function Documentos(): ReactNode {
 
                 <div className="doc-results-list">
                   {linhasVisiveis.length === 0 ? (
-                    <div className="doc-empty-state">
+                    <div className="ui-vazio doc-empty-state">
                       <Icone icon={faShieldHalved} aria-hidden="true" />
                       <span>{linhas.length === 0 ? 'Os resultados aparecerão aqui.' : 'Nenhum resultado neste filtro.'}</span>
                     </div>
@@ -370,7 +372,7 @@ export default function Documentos(): ReactNode {
             <div className="doc-generate-workspace">
               <section className="doc-generate-toolbar">
                 <div>
-                  <span className="doc-label">Quantidade</span>
+                  <span className="ui-label">Quantidade</span>
                   <div className="doc-quantity-buttons">
                     {QUANTIDADES.map((quantidade) => (
                       <Botao key={quantidade} onClick={() => gerar(quantidade)}>{quantidade}</Botao>
@@ -405,7 +407,7 @@ export default function Documentos(): ReactNode {
                 </header>
                 <div className="doc-generated-list">
                   {gerados.length === 0 ? (
-                    <div className="doc-empty-state">
+                    <div className="ui-vazio doc-empty-state">
                       <Icone icon={faRotate} aria-hidden="true" />
                       <span>Escolha uma quantidade para gerar {documento.rotulo}.</span>
                     </div>
@@ -447,23 +449,5 @@ export default function Documentos(): ReactNode {
         </section>
       </div>
     </div>
-  )
-}
-
-function Botao({
-  variante = 'normal',
-  icone = false,
-  className = '',
-  ...props
-}: React.ComponentProps<'button'> & {
-  variante?: 'normal' | 'primario' | 'perigo'
-  icone?: boolean
-}): ReactNode {
-  return (
-    <button
-      type="button"
-      {...props}
-      className={`doc-button doc-button--${variante} ${icone ? 'doc-button--icone' : ''} ${className}`}
-    />
   )
 }

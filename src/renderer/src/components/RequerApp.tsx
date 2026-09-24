@@ -23,7 +23,7 @@ export default function RequerApp({ tool }: { tool: Tool }): ReactNode {
         Esta ferramenta mexe em arquivos e programas da sua máquina, coisa que uma página no
         navegador não alcança. No aplicativo ela funciona igual às demais.
       </p>
-      <a className="requer-app__botao" href={href}>
+      <a className="ui-btn ui-btn--primario ui-btn--lg" href={href}>
         <Icone icon={faDownload} aria-hidden="true" />
         Baixar para Windows
       </a>

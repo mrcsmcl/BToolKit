@@ -109,7 +109,7 @@ export default function Historico({ version }: HistoricoProps): ReactNode {
     <div className="history-screen">
       <header className="history-header">
         <div>
-          <p className="history-eyebrow">Projeto BToolKit</p>
+          <p className="ui-label history-eyebrow">Projeto BToolKit</p>
           <h1>
             <Icone icon={faClockRotateLeft} aria-hidden="true" />
             Changelog e contribuidores
@@ -125,12 +125,13 @@ export default function Historico({ version }: HistoricoProps): ReactNode {
             <span className="sr-only">Buscar no changelog</span>
             <Icone icon={faMagnifyingGlass} aria-hidden="true" />
             <input
+              className="ui-input"
               value={busca}
               onChange={(event) => setBusca(event.target.value)}
               placeholder="Buscar commit ou autor…"
             />
           </label>
-          <span className="history-version">v{version || '—'}</span>
+          <span className="ui-selo history-version">v{version || '—'}</span>
           <button
             type="button"
             title="Abrir repositório no GitHub"
@@ -187,6 +188,7 @@ export default function Historico({ version }: HistoricoProps): ReactNode {
             <footer className="history-pagination" aria-label="Paginação do changelog">
               <button
                 type="button"
+                className="ui-btn ui-btn--sm"
                 disabled={paginaAtual === 1}
                 aria-label="Página anterior"
                 onClick={() => setPagina((atual) => Math.max(1, atual - 1))}
@@ -199,6 +201,7 @@ export default function Historico({ version }: HistoricoProps): ReactNode {
               </span>
               <button
                 type="button"
+                className="ui-btn ui-btn--sm"
                 disabled={paginaAtual === totalPaginas}
                 aria-label="Próxima página"
                 onClick={() => setPagina((atual) => Math.min(totalPaginas, atual + 1))}
@@ -227,7 +230,7 @@ export default function Historico({ version }: HistoricoProps): ReactNode {
               </article>
             ))}
             {contribuidores.length === 0 && (
-              <div className="history-contributors-empty">Nenhum contribuidor humano identificado.</div>
+              <div className="ui-vazio history-contributors-empty">Nenhum contribuidor humano identificado.</div>
             )}
           </div>
         </aside>
@@ -293,6 +296,7 @@ function HistoricoErro({ mensagem }: { mensagem: string }): ReactNode {
       <p>{mensagem}</p>
       <button
         type="button"
+        className="ui-btn ui-btn--icone"
         title="Abrir repositório no GitHub"
         aria-label="Abrir repositório no GitHub"
         onClick={() => window.api.app.abrirRepositorio()}

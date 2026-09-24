@@ -109,7 +109,7 @@ export default function App(): ReactNode {
         <span className="ml-1 text-[11px] text-muted">/ {tituloAtual}</span>
 
         {!noApp && (
-          <a className="site-baixar ml-auto" href={linkDownload}>
+          <a className="ui-btn ui-btn--primario ui-btn--sm ml-auto" href={linkDownload}>
             <Icone icon={faDownload} aria-hidden="true" />
             Baixar para Windows
           </a>

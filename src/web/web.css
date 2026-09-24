@@ -9,30 +9,6 @@
    Site — prefixo site- / requer-app
    ====================================================================== */
 
-.site-baixar {
-  display: inline-flex;
-  height: 26px;
-  align-items: center;
-  gap: 7px;
-  border-radius: 7px;
-  padding: 0 12px;
-  background: var(--color-accent);
-  color: var(--color-bg);
-  font-size: 11px;
-  font-weight: 600;
-  transition:
-    filter 160ms ease,
-    transform 120ms ease;
-}
-
-.site-baixar:hover {
-  filter: brightness(1.08);
-}
-
-.site-baixar:active {
-  transform: scale(0.97);
-}
-
 .requer-app {
   display: flex;
   height: 100%;
@@ -72,31 +48,6 @@
 
 .requer-app__motivo {
   color: color-mix(in srgb, var(--color-muted) 82%, transparent);
-}
-
-.requer-app__botao {
-  display: inline-flex;
-  height: 36px;
-  align-items: center;
-  gap: 8px;
-  border-radius: 9px;
-  padding: 0 18px;
-  margin-top: 8px;
-  background: var(--color-accent);
-  color: var(--color-bg);
-  font-size: 13px;
-  font-weight: 600;
-  transition:
-    filter 160ms ease,
-    transform 120ms ease;
-}
-
-.requer-app__botao:hover {
-  filter: brightness(1.08);
-}
-
-.requer-app__botao:active {
-  transform: scale(0.98);
 }
 
 .requer-app__nota {
