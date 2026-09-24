@@ -13,10 +13,14 @@
     "historico": "node scripts/gerar-historico.mjs",
     "dev": "electron-vite dev",
     "start": "electron-vite preview",
+    "dev:site": "vite --config vite.config.web.ts",
+    "build:site": "npm run typecheck && npm run checar:runtime && vite build --config vite.config.web.ts",
+    "preview:site": "vite preview --config vite.config.web.ts",
     "build": "npm run typecheck && electron-vite build",
-    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
+    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json && tsc --noEmit -p tsconfig.site.json",
     "build:win": "npm run build && npm run historico && electron-builder --win --publish never",
-    "release": "npm run build && npm run historico && electron-builder --publish always"
+    "release": "npm run build && npm run historico && electron-builder --publish always",
+    "checar:runtime": "node scripts/checar-runtime.mjs"
   },
   "dependencies": {
     "electron-log": "^5.2.0",

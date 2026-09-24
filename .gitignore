@@ -8,3 +8,6 @@ out/
 .env.local
 *.tsbuildinfo
 .generated/
+dist-web/
+/docs/ui-concepts
+/semantic-review
