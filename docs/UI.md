@@ -137,7 +137,29 @@ janela mudar. Prefira container query sempre que o elemento não ocupar a janela
 
 ### 3.6 Onde o estilo mora
 
-Duas formas convivem, e a escolha entre elas não é gosto:
+São **quatro camadas**, e a ordem importa:
+
+| Camada | Arquivo | O que guarda |
+| --- | --- | --- |
+| Tokens | `tokens.css` | cor, animação, reset — nenhum componente |
+| Componentes | `componentes.css` + `components/ui.tsx` | botão, campo, rótulo, selo, estado vazio |
+| Casca | `index.css` | rail, Início, changelog, moldura da ferramenta |
+| Ferramenta | `tools/<nome>/<nome>.css` | só o que é exclusivo daquela tela |
+
+**A camada de componentes é obrigatória.** Botão, campo de texto, rótulo de campo, selo e
+estado vazio já existem sob o prefixo `ui-`; uma tela nova usa, não reescreve. Precisar de
+algo diferente é legítimo, mas se resolve sobrescrevendo uma propriedade sobre o primitivo,
+e a sobrescrita fica visível na revisão.
+
+Isso não é preferência. Antes de a camada existir, o mesmo campo de busca tinha três
+implementações — 32, 32 e 34 px de altura, fontes de 10, 10.5 e 11 px, dois fundos
+diferentes. O botão tinha quatro alturas (26, 30, 32, 36) e dois vocabulários de variante
+(`solido`/`primario`, `fantasma`/`normal`). Ninguém decidiu nada disso: divergiu sozinho.
+
+E não adianta só juntar tudo num arquivo: `repos-` e `history-` **moravam no mesmo
+`index.css`** e mesmo assim divergiram. Proximidade não é contrato; uma definição só é.
+
+Abaixo da camada de componentes, a escolha entre utilitário e classe nomeada continua:
 
 **Utilitário Tailwind no JSX** — para layout e espaçamento locais de um componente, variação
 condicional simples, e qualquer coisa que se leia melhor perto da marcação.
@@ -383,6 +405,7 @@ fixo: repositório, branch, stash, pasta raiz, atualizar, verificar e cancelar.
 - [ ] Ferramenta universal foi vista no site, não só no app.
 - [ ] Selo de runtime correto no cartão do catálogo.
 - [ ] Ferramenta usa `.tool-header`, e a linha dela continua a da rail.
+- [ ] Botão, campo, rótulo, selo e estado vazio vêm da camada `ui-`, não de classe nova.
 - [ ] `npm run typecheck`, `npm run build` e `npm run build:site` passam.
 
 ## 13. O site

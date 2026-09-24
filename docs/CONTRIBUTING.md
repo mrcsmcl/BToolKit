@@ -81,9 +81,10 @@ src/
 │   └── src/
 │       ├── App.tsx      casca dos DOIS produtos: barra de título, rail, roteamento
 │       ├── ambiente.tsx contexto que diz se está no app ou no site
-│       ├── components/  Inicio, Historico, UpdateBanner, Icone
+│       ├── components/  Inicio, Historico, UpdateBanner, Icone, ui (primitivos)
 │       ├── hooks/       hooks compartilhados
 │       ├── tokens.css   paleta, keyframes, reset — compartilhado com o site
+│       ├── componentes.css  camada ui-: botão, campo, rótulo, selo, vazio
 │       ├── index.css    classes da casca do app (ver UI.md)
 │       └── tools/       uma ferramenta por arquivo + registry.ts
 ├── web/                 entrada do site — NÃO tem casca própria
@@ -457,8 +458,10 @@ limite de requisições, release sem `.exe` — cai para `/releases/latest`. Por
 - **Comentário explica o porquê, não o quê.** O código já diz o que faz. O comentário serve
   para a decisão que não é óbvia — por que o stash só acontece depois de confirmar a branch,
   por que o giro do botão tem tempo mínimo. Comentário que narra a linha seguinte é ruído.
-- **Estilo:** ver [UI.md §3.6](UI.md#36-onde-o-estilo-mora) para a regra de quando usar
-  utilitário Tailwind no JSX e quando escrever classe no `index.css`.
+- **Estilo:** antes de escrever CSS, veja se o primitivo já existe. Botão, campo, rótulo,
+  selo e estado vazio vivem na camada `ui-` e são compartilhados — ver
+  [UI.md §3.6](UI.md#36-onde-o-estilo-mora) e [§6](UI.md#6-componentes-base). Reescrever um
+  deles é como as medidas divergem.
 - **Sem dependência nova sem necessidade real.** O app já é grande por ser Electron; o que
   entra tem que se pagar. Biblioteca usada só pelo renderer vai em `devDependencies` — o Vite
   a empacota no bundle, e deixá-la em `dependencies` faz o electron-builder copiá-la de novo
