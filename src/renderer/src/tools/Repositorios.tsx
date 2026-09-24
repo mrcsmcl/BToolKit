@@ -398,38 +398,38 @@ export default function Repositorios(): ReactNode {
         </p>
       )}
 
+      <header className="tool-header repos-header">
+        <div className="min-w-0">
+          <h1 className="flex items-center gap-2 text-base font-semibold tracking-tight text-fg">
+            <Icone icon={faCodeBranch} aria-hidden="true" className="text-sm text-muted" />
+            Repositórios
+          </h1>
+          <div className="repos-header__meta">
+            <span>{linhas.length} encontrado(s)</span>
+            {marcados.size > 0 && <span>· {marcados.size} selecionado(s)</span>}
+            {gitOk !== null && (
+              <span
+                className={`repos-git-dot ${gitOk ? 'repos-git-dot--ok' : 'repos-git-dot--erro'}`}
+                role="status"
+                aria-label={gitOk ? 'Git disponível' : 'Git indisponível'}
+                title={gitOk ? 'Git disponível' : 'Git indisponível'}
+              />
+            )}
+          </div>
+        </div>
+        <Botao
+          variante="fantasma"
+          className="repos-reload-button"
+          disabled={bloqueado}
+          onClick={carregar}
+        >
+          <Icone icon={faRotate} aria-hidden="true" />
+          Recarregar
+        </Botao>
+      </header>
+
       <div className="repos-shell">
         <section className="repos-main">
-          <header className="repos-header">
-            <div className="min-w-0">
-              <h1 className="flex items-center gap-2 text-lg font-semibold tracking-tight text-fg">
-                <Icone icon={faCodeBranch} aria-hidden="true" className="text-sm text-muted" />
-                Repositórios
-              </h1>
-              <div className="repos-header__meta">
-                <span>{linhas.length} encontrado(s)</span>
-                {marcados.size > 0 && <span>· {marcados.size} selecionado(s)</span>}
-                {gitOk !== null && (
-                  <span
-                    className={`repos-git-dot ${gitOk ? 'repos-git-dot--ok' : 'repos-git-dot--erro'}`}
-                    role="status"
-                    aria-label={gitOk ? 'Git disponível' : 'Git indisponível'}
-                    title={gitOk ? 'Git disponível' : 'Git indisponível'}
-                  />
-                )}
-              </div>
-            </div>
-            <Botao
-              variante="fantasma"
-              className="repos-reload-button"
-              disabled={bloqueado}
-              onClick={carregar}
-            >
-              <Icone icon={faRotate} aria-hidden="true" />
-              Recarregar
-            </Botao>
-          </header>
-
           <div className="repos-controls">
             <label className="min-w-0">
               <span className="repos-field-label">Pasta raiz</span>

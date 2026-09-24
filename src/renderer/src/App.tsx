@@ -1,16 +1,20 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import logo from './assets/logo.png'
 import {
   Icone,
   faArrowsRotate,
   faChevronRight,
   faCircleCheck,
+  faDownload,
   faGithub,
   faHouse,
+  faLock,
   faMagnifyingGlass
 } from './components/Icone'
+import { useAmbiente } from './ambiente'
 import Historico from './components/Historico'
 import Inicio from './components/Inicio'
+import RequerApp from './components/RequerApp'
 import UpdateBanner from './components/UpdateBanner'
 import { tools } from './tools/registry'
 
@@ -19,18 +23,25 @@ const PISO_GIRO_MS = 900
 const TELA_HISTORICO = '$historico'
 
 export default function App(): ReactNode {
+  const ambiente = useAmbiente()
+  const noApp = ambiente.tipo === 'app'
+  const linkDownload = ambiente.download?.url ?? `${ambiente.urlRepositorio}/releases/latest`
+
   const [activeId, setActiveId] = useState<string | null>(null)
   const [query, setQuery] = useState('')
   const [railExpandida, setRailExpandida] = useState(false)
-  const [version, setVersion] = useState('')
+  const [versaoApp, setVersaoApp] = useState('')
   const [checando, setChecando] = useState(false)
   const [semNovidade, setSemNovidade] = useState(false)
   const timerConfirmacao = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   useEffect(() => {
-    void window.api.updater.getVersion().then(setVersion)
+    // No site não existe ponte: a versão vem do release consultado pelo ambiente.
+    if (noApp) void window.api.updater.getVersion().then(setVersaoApp)
     return () => clearTimeout(timerConfirmacao.current)
-  }, [])
+  }, [noApp])
+
+  const version = noApp ? versaoApp : (ambiente.download?.versao ?? '')
 
   useEffect(() => {
     if (!railExpandida) setQuery('')
@@ -90,14 +101,22 @@ export default function App(): ReactNode {
     <div className="flex h-full flex-col bg-bg">
       <header
         className="flex h-10 shrink-0 items-center gap-2 border-b border-border/60 px-4"
-        style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
+        // Arrastar a janela só faz sentido no app; no navegador não há janela para mover.
+        style={noApp ? ({ WebkitAppRegion: 'drag' } as React.CSSProperties) : undefined}
       >
         <img src={logo} alt="" className="h-5 w-5" />
         <span className="text-xs font-semibold tracking-wide text-fg">BToolKit</span>
         <span className="ml-1 text-[11px] text-muted">/ {tituloAtual}</span>
+
+        {!noApp && (
+          <a className="site-baixar ml-auto" href={linkDownload}>
+            <Icone icon={faDownload} aria-hidden="true" />
+            Baixar para Windows
+          </a>
+        )}
       </header>
 
-      <UpdateBanner />
+      {noApp && <UpdateBanner />}
 
       <div className="app-body flex min-h-0 flex-1">
         <button
@@ -114,7 +133,7 @@ export default function App(): ReactNode {
             aria-label="Menu de ferramentas"
             className="app-rail flex h-full flex-col border-r border-border bg-surface"
           >
-            <div className="flex h-13 shrink-0 items-center border-b border-border px-3">
+            <div className="app-rail-topo flex shrink-0 items-center border-b border-border px-3">
               <button
                 type="button"
                 aria-expanded={railExpandida}
@@ -187,13 +206,20 @@ export default function App(): ReactNode {
                   <div className="grid gap-1">
                     {items.map((tool) => {
                       const ativo = tool.id === activeId
+                      const bloqueada = !noApp && tool.runtime === 'desktop'
                       return (
                         <button
                           key={tool.id}
                           type="button"
                           aria-current={ativo ? 'page' : undefined}
-                          aria-label={tool.name}
-                          title={railExpandida ? tool.description : `${tool.name} — ${tool.description}`}
+                          aria-label={bloqueada ? `${tool.name} — requer o aplicativo` : tool.name}
+                          title={
+                            bloqueada
+                              ? `${tool.name} — requer o aplicativo`
+                              : railExpandida
+                                ? tool.description
+                                : `${tool.name} — ${tool.description}`
+                          }
                           onClick={() => {
                             setActiveId(tool.id)
                             if (window.innerWidth < 1100) setRailExpandida(false)
@@ -206,6 +232,9 @@ export default function App(): ReactNode {
                             <Icone icon={tool.glyph} />
                           </span>
                           {railExpandida && <span className="truncate">{tool.name}</span>}
+                          {bloqueada && railExpandida && (
+                            <Icone icon={faLock} aria-hidden="true" className="ml-auto text-[9px]" />
+                          )}
                         </button>
                       )
                     })}
@@ -224,42 +253,70 @@ export default function App(): ReactNode {
                 railExpandida ? 'app-rail-footer--expanded' : ''
               }`}
             >
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveId(TELA_HISTORICO)
-                  if (window.innerWidth < 1100) setRailExpandida(false)
-                }}
-                title="Changelog e contribuidores"
-                aria-label="Abrir changelog e contribuidores"
-                aria-current={historicoAtivo ? 'page' : undefined}
-                className={`app-rail-footer__button ${
-                  historicoAtivo ? 'app-rail-footer__button--active' : ''
-                }`}
-              >
-                <Icone icon={faGithub} />
-              </button>
+              {noApp ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveId(TELA_HISTORICO)
+                    if (window.innerWidth < 1100) setRailExpandida(false)
+                  }}
+                  title="Changelog e contribuidores"
+                  aria-label="Abrir changelog e contribuidores"
+                  aria-current={historicoAtivo ? 'page' : undefined}
+                  className={`app-rail-footer__button ${
+                    historicoAtivo ? 'app-rail-footer__button--active' : ''
+                  }`}
+                >
+                  <Icone icon={faGithub} />
+                </button>
+              ) : (
+                // O changelog lê o histórico pelo processo principal, que o site não tem.
+                <a
+                  href={ambiente.urlRepositorio}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  title="Ver o projeto no GitHub"
+                  aria-label="Ver o projeto no GitHub"
+                  className="app-rail-footer__button"
+                >
+                  <Icone icon={faGithub} />
+                </a>
+              )}
 
-              {railExpandida && <span className="whitespace-nowrap text-[10px]">v{version}</span>}
+              {railExpandida && version && (
+                <span className="whitespace-nowrap text-[10px]">v{version}</span>
+              )}
 
-              <button
-                type="button"
-                onClick={verificarAtualizacao}
-                disabled={checando}
-                title="Verificar atualização"
-                aria-label="Verificar atualização"
-                aria-busy={checando}
-                className="app-rail-footer__button disabled:text-fg"
-              >
-                {semNovidade ? (
-                  <Icone icon={faCircleCheck} className="text-emerald-400" />
-                ) : (
-                  <Icone icon={faArrowsRotate} className={checando ? 'animate-girar' : undefined} />
-                )}
-                {railExpandida && (
-                  <span>{semNovidade ? 'Atualizado' : checando ? 'Verificando…' : 'Verificar'}</span>
-                )}
-              </button>
+              {noApp ? (
+                <button
+                  type="button"
+                  onClick={verificarAtualizacao}
+                  disabled={checando}
+                  title="Verificar atualização"
+                  aria-label="Verificar atualização"
+                  aria-busy={checando}
+                  className="app-rail-footer__button disabled:text-fg"
+                >
+                  {semNovidade ? (
+                    <Icone icon={faCircleCheck} className="text-emerald-400" />
+                  ) : (
+                    <Icone icon={faArrowsRotate} className={checando ? 'animate-girar' : undefined} />
+                  )}
+                  {railExpandida && (
+                    <span>{semNovidade ? 'Atualizado' : checando ? 'Verificando…' : 'Verificar'}</span>
+                  )}
+                </button>
+              ) : (
+                <a
+                  href={linkDownload}
+                  title="Baixar o aplicativo para Windows"
+                  aria-label="Baixar o aplicativo para Windows"
+                  className="app-rail-footer__button"
+                >
+                  <Icone icon={faDownload} />
+                  {railExpandida && <span>Baixar app</span>}
+                </a>
+              )}
             </footer>
           </aside>
         </div>
@@ -272,13 +329,28 @@ export default function App(): ReactNode {
           ) : active ? (
             // A chave remonta o bloco somente ao trocar de ferramenta; expandir a rail preserva o estado.
             <div key={active.id} className="animate-surgir h-full min-h-0">
-              <active.Component />
+              {!noApp && active.runtime === 'desktop' ? (
+                <RequerApp tool={active} />
+              ) : (
+                /* A ferramenta é carregada sob demanda; o fallback cobre só o instante do import. */
+                <Suspense fallback={<CarregandoFerramenta />}>
+                  <active.Component />
+                </Suspense>
+              )}
             </div>
           ) : (
             <Inicio onSelectTool={setActiveId} />
           )}
         </main>
       </div>
+    </div>
+  )
+}
+
+function CarregandoFerramenta(): ReactNode {
+  return (
+    <div className="grid h-full place-items-center" role="status">
+      <span className="text-xs text-muted">Carregando ferramenta…</span>
     </div>
   )
 }

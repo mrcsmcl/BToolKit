@@ -1,11 +1,11 @@
-import { faCodeBranch } from '../components/Icone'
-import Repositorios from './Repositorios'
+import { lazy } from 'react'
+import { faCodeBranch, faShieldHalved } from '../components/Icone'
 import type { Tool } from './types'
 
 /**
  * Para adicionar uma ferramenta: crie o componente em src/renderer/src/tools/
  * e registre uma entrada aqui. Nada mais precisa mudar — a barra lateral, a
- * busca e o roteamento saem deste registro.
+ * busca, a tela inicial e o site saem deste registro.
  */
 export const tools: Tool[] = [
   {
@@ -14,6 +14,16 @@ export const tools: Tool[] = [
     description: 'Troca de branch e atualização em lote de vários repositórios git.',
     group: 'Git',
     glyph: faCodeBranch,
-    Component: Repositorios
+    runtime: 'desktop',
+    Component: lazy(() => import('./Repositorios'))
+  },
+  {
+    id: 'documentos',
+    name: 'Documentos',
+    description: 'Valida e gera CPF, CNPJ, CAEPF, CNS e PIS/PASEP.',
+    group: 'Validação',
+    glyph: faShieldHalved,
+    runtime: 'universal',
+    Component: lazy(() => import('./Documentos'))
   }
 ]
