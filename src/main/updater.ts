@@ -27,7 +27,6 @@ function pararContagem(): void {
 }
 
 /**
- * O instalador é oneClick, então a instalação não mostra assistente nenhum.
  * A contagem existe só para não arrancar a janela de quem está no meio de algo:
  * ao zerar, o app reinicia sozinho; se o usuário adiar, instala ao fechar.
  */
@@ -42,12 +41,21 @@ function agendarReinicio(version: string): void {
     if (restantes <= 0) {
       pararContagem()
       log.info(`instalando ${version} e reiniciando`)
-      autoUpdater.quitAndInstall()
+      instalarEmSilencio()
       return
     }
 
     broadcast({ state: 'downloaded', version, segundosParaReiniciar: restantes })
   }, 1000)
+}
+
+/**
+ * O instalador é assistido, para a primeira instalação ter a cara do produto.
+ * Numa atualização isso seria um assistente indesejado, então aqui ele roda em
+ * silêncio: o primeiro argumento suprime a interface e o segundo reabre o app.
+ */
+function instalarEmSilencio(): void {
+  autoUpdater.quitAndInstall(true, true)
 }
 
 export function setupUpdater(): void {
@@ -79,7 +87,7 @@ export function setupUpdater(): void {
   ipcMain.handle('updater:check', () => checkForUpdates())
   ipcMain.handle('updater:install', () => {
     pararContagem()
-    autoUpdater.quitAndInstall()
+    instalarEmSilencio()
   })
   ipcMain.handle('updater:adiar', () => {
     // Sai da contagem, mas a instalação continua agendada para o fechamento.

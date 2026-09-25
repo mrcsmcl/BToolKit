@@ -40,7 +40,7 @@ npm run dev
 | `npm run build` | `typecheck` + bundle (não empacota) |
 | `npm run start` | Roda o bundle de produção, sem empacotar |
 | `npm run historico` | Gera `.generated/historico.json` (ver §6.2) |
-| `npm run build:win` | `build` + `historico` + instalador local (ver §10) |
+| `npm run build:win` | `build` + `historico` + instalador em `dist/` |
 | `npm run dev:site` | Sobe o site com recarga automática |
 | `npm run build:site` | `typecheck` + guarda de runtime + site em `dist-web/` |
 | `npm run preview:site` | Serve `dist-web/` como o Pages serviria |
@@ -55,7 +55,7 @@ npm run dev
 .generated/          saída do npm run historico — ignorada pelo git
 dist-web/            saída do npm run build:site — ignorada pelo git
 docs/                CONTRIBUTING.md, UI.md e ui-concepts/ (estudo visual, não é código)
-resources/           icon.png e icon.ico do app
+resources/           ícones e as imagens do instalador (BMP do assistente)
 scripts/             utilitários de build
 semantic-review/     relatórios de revisão gerados por ferramenta; não são fonte de verdade
 src/                 código
@@ -365,8 +365,12 @@ Referência rápida de como cada parte já resolvida funciona, para não reinven
 ### 6.1 Atualização automática
 
 `src/main/updater.ts`. Baixa sozinho (`autoDownload`), instala ao fechar
-(`autoInstallOnAppQuit`) e, quando o download termina, conta 10 s e reinicia. O instalador é
-`oneClick`, o que faz a instalação rodar sem assistente.
+(`autoInstallOnAppQuit`) e, quando o download termina, conta 10 s e reinicia.
+
+O instalador é **assistido**, para a primeira instalação ter a cara do produto — boas-vindas
+e conclusão, sem escolha de pasta. Na atualização isso seria um assistente indesejado, então
+o updater chama `quitAndInstall(true, true)`: o primeiro argumento suprime a interface, o
+segundo reabre o app. A instalação ao fechar já é silenciosa por natureza.
 
 Duas coisas que mordem quem mexe aqui:
 
@@ -573,17 +577,19 @@ Commits e descrições de PR vão **sem linha de atribuição** de ferramenta de
 
 ## 10. Armadilhas conhecidas
 
-**O instalador não empacota nesta máquina.** No Windows sem Modo de Desenvolvedor, o
-electron-builder falha ao extrair o pacote `winCodeSign` porque não consegue criar links
-simbólicos:
+**O instalador agora empacota localmente.** Durante muito tempo `npm run build:win` parava
+com este erro, porque o electron-builder baixava o pacote `winCodeSign` e não conseguia criar
+dois symlinks dentro dele:
 
 ```
 ERROR: Cannot create symbolic link : O cliente não tem o privilégio necessário.
 ```
 
-O bundle é gerado, mas o instalador não, e o ícone não é gravado no `.exe` (o `rcedit` vive
-nesse mesmo pacote). Solução: habilitar o Modo de Desenvolvedor do Windows, ou rodar num
-terminal como administrador. O CI não sofre disso.
+A causa era um passo de assinatura que o projeto **nunca usou** — não há certificado de code
+signing. Com `win.signExecutable: false` esse passo some, o `winCodeSign` não é mais baixado,
+e o `resedit` continua gravando ícone e metadados no executável. Se um dia entrar um
+certificado, remova a opção e o Modo de Desenvolvedor do Windows passa a ser necessário para
+buildar local.
 
 **O app não abre e nada acontece.** Instância única: se sobrou um processo `BToolKit.exe` sem
 janela, todo atalho novo sai em silêncio. Encerre pelo Gerenciador de Tarefas. O código tem
@@ -591,6 +597,12 @@ rede de proteção para isso em `src/main/index.ts` — a janela aparece por `re
 `did-finish-load`, `did-fail-load` ou um limite de 10 s, o que vier primeiro.
 
 **O updater não funciona em dev.** Ver §6.1.
+
+**O instalador é assistido, mas a atualização não mostra tela.** `oneClick: false` dá a
+primeira instalação com boas-vindas e conclusão; a atualização passa por
+`quitAndInstall(true, true)`, em que o primeiro argumento suprime a interface. Se alguém
+trocar essa chamada por `quitAndInstall()` sem argumentos, o assistente volta a aparecer a
+cada atualização.
 
 **O changelog aparece vazio no app instalado.** O snapshot não foi gerado ou não entrou no
 pacote. Confira se `npm run historico` rodou antes do `electron-builder` e se o checkout do

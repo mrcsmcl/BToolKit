@@ -22,13 +22,29 @@ publish:
 
 win:
   target: nsis
+  # Nao existe certificado de code signing no projeto, entao o passo de
+  # assinatura so baixava e extraia o pacote winCodeSign a toa — e era o que
+  # impedia gerar o instalador em maquina sem Modo de Desenvolvedor. O resedit
+  # continua gravando icone e metadados no executavel.
+  signExecutable: false
   icon: resources/icon.ico
   artifactName: ${productName}-${version}-setup.${ext}
 
 nsis:
-  # oneClick: o instalador roda sem assistente. E o que permite a atualizacao
-  # automatica nao mostrar nenhum "Avancar" ao usuario.
-  oneClick: true
+  # Assistido, para a primeira instalacao ter a cara do produto. A atualizacao
+  # continua sem tela nenhuma porque o updater chama quitAndInstall com o flag
+  # de silencio — ver src/main/updater.ts.
+  oneClick: false
   perMachine: false
+  # Sem escolha de pasta: so boas-vindas e conclusao, dois cliques.
   allowToChangeInstallationDirectory: false
+  removeDefaultUninstallWelcomePage: true
+  runAfterFinish: true
   deleteAppDataOnUninstall: false
+  uninstallDisplayName: ${productName}
+  installerIcon: icon.ico
+  uninstallerIcon: icon.ico
+  installerHeaderIcon: icon.ico
+  installerHeader: installerHeader.bmp
+  installerSidebar: installerSidebar.bmp
+  uninstallerSidebar: uninstallerSidebar.bmp
