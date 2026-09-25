@@ -135,9 +135,9 @@ export default function Documentos(): ReactNode {
         </span>
         <div>
           <h1>Documentos</h1>
-          <p>Valide lotes e gere documentos brasileiros para cenários de teste.</p>
+          <p>Confere listas inteiras de uma vez e gera valores com dígito verificador correto.</p>
         </div>
-        <span className="doc-ready" title="Ferramenta pronta" aria-label="Ferramenta pronta" />
+        <span className="doc-ready" title="O cálculo é feito aqui: nada é enviado para fora" aria-label="Funciona sem internet" />
       </header>
 
       <div className={`doc-explorer ${catalogoAberto ? '' : 'doc-explorer--fechado'}`}>
@@ -226,7 +226,7 @@ export default function Documentos(): ReactNode {
               {documentosFiltrados.length === 0 && (
                 <div className="ui-vazio doc-catalog-empty">
                   <Icone icon={faMagnifyingGlass} aria-hidden="true" />
-                  <span>Nenhum documento encontrado.</span>
+                  <span>Nenhum documento corresponde à busca.</span>
                 </div>
               )}
             </div>
@@ -274,7 +274,7 @@ export default function Documentos(): ReactNode {
                   <h2>Entrada</h2>
                   <span>Validação instantânea</span>
                 </header>
-                <p>Cole uma coluna. Aceita linha, vírgula ou ponto e vírgula.</p>
+                <p>Um por linha. Vírgula e ponto e vírgula também separam.</p>
                 <label htmlFor="doc-entrada" className="ui-label">
                   Valores de {documento.rotulo}
                 </label>
@@ -315,7 +315,7 @@ export default function Documentos(): ReactNode {
                   {linhasVisiveis.length === 0 ? (
                     <div className="ui-vazio doc-empty-state">
                       <Icone icon={faShieldHalved} aria-hidden="true" />
-                      <span>{linhas.length === 0 ? 'Os resultados aparecerão aqui.' : 'Nenhum resultado neste filtro.'}</span>
+                      <span>{linhas.length === 0 ? 'Cole os valores ao lado para ver o resultado.' : 'Nenhum resultado neste filtro.'}</span>
                     </div>
                   ) : (
                     <ul>

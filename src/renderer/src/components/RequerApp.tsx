@@ -20,8 +20,8 @@ export default function RequerApp({ tool }: { tool: Tool }): ReactNode {
       <h1>{tool.name} precisa do aplicativo</h1>
       <p>{tool.description}</p>
       <p className="requer-app__motivo">
-        Esta ferramenta mexe em arquivos e programas da sua máquina, coisa que uma página no
-        navegador não alcança. No aplicativo ela funciona igual às demais.
+        Ela precisa ler arquivos e executar programas na sua máquina, e uma página no navegador
+        não tem esse acesso. No aplicativo instalado, funciona normalmente.
       </p>
       <a className="ui-btn ui-btn--primario ui-btn--lg" href={href}>
         <Icone icon={faDownload} aria-hidden="true" />

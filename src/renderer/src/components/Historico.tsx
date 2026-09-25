@@ -96,7 +96,7 @@ export default function Historico({ version }: HistoricoProps): ReactNode {
     return (
       <div className="history-loading" role="status">
         <Icone icon={faClockRotateLeft} className="animate-girar" />
-        <span>Carregando histórico Git…</span>
+        <span>Carregando o histórico…</span>
       </div>
     )
   }
@@ -230,7 +230,7 @@ export default function Historico({ version }: HistoricoProps): ReactNode {
               </article>
             ))}
             {contribuidores.length === 0 && (
-              <div className="ui-vazio history-contributors-empty">Nenhum contribuidor humano identificado.</div>
+              <div className="ui-vazio history-contributors-empty">Só contas automatizadas entre os contribuidores.</div>
             )}
           </div>
         </aside>

@@ -66,8 +66,8 @@ function digitoCpf(base: string): number {
 
 function validarCpf(valor: string): Validacao {
   const cpf = soDigitos(valor)
-  if (cpf.length !== 11) return invalido(`precisa de 11 dígitos, tem ${cpf.length}`)
-  if (todosIguais(cpf)) return invalido('todos os dígitos iguais')
+  if (cpf.length !== 11) return invalido(`tem ${cpf.length} dígitos, precisa de 11`)
+  if (todosIguais(cpf)) return invalido('todos os dígitos são iguais')
 
   const base = cpf.slice(0, 9)
   const d1 = digitoCpf(base)
@@ -107,12 +107,12 @@ function digitoCnpj(base: string): number {
 
 function validarCnpj(valor: string): Validacao {
   const cnpj = soAlfanumerico(valor)
-  if (cnpj.length !== 14) return invalido(`precisa de 14 caracteres, tem ${cnpj.length}`)
-  if (todosIguais(cnpj)) return invalido('todos os caracteres iguais')
+  if (cnpj.length !== 14) return invalido(`tem ${cnpj.length} caracteres, precisa de 14`)
+  if (todosIguais(cnpj)) return invalido('todos os caracteres são iguais')
 
   const raiz = cnpj.slice(0, 12)
-  if (!/^[0-9A-Z]{12}$/.test(raiz)) return invalido('os 12 primeiros aceitam apenas letras e números')
-  if (!/^\d{2}$/.test(cnpj.slice(12))) return invalido('o dígito verificador precisa ser numérico')
+  if (!/^[0-9A-Z]{12}$/.test(raiz)) return invalido('os 12 primeiros caracteres aceitam só letras e números')
+  if (!/^\d{2}$/.test(cnpj.slice(12))) return invalido('os 2 últimos caracteres precisam ser números')
 
   const d1 = digitoCnpj(raiz)
   const d2 = digitoCnpj(raiz + d1)
@@ -156,8 +156,8 @@ function verificadorCaepf(base: string): string {
 
 function validarCaepf(valor: string): Validacao {
   const caepf = soDigitos(valor)
-  if (caepf.length !== 14) return invalido(`precisa de 14 dígitos, tem ${caepf.length}`)
-  if (todosIguais(caepf)) return invalido('todos os dígitos iguais')
+  if (caepf.length !== 14) return invalido(`tem ${caepf.length} dígitos, precisa de 14`)
+  if (todosIguais(caepf)) return invalido('todos os dígitos são iguais')
 
   const esperado = verificadorCaepf(caepf.slice(0, 12))
   if (esperado !== caepf.slice(12)) return invalido(`dígito verificador deveria ser ${esperado}`)
@@ -179,7 +179,7 @@ function somaCns(cns: string): number {
 
 function validarCns(valor: string): Validacao {
   const cns = soDigitos(valor)
-  if (cns.length !== 15) return invalido(`precisa de 15 dígitos, tem ${cns.length}`)
+  if (cns.length !== 15) return invalido(`tem ${cns.length} dígitos, precisa de 15`)
 
   const inicio = cns[0]
 
@@ -205,7 +205,7 @@ function validarCns(valor: string): Validacao {
 
   // Provisório: a soma ponderada dos 15 dígitos precisa fechar em múltiplo de 11.
   if (inicio === '7' || inicio === '8' || inicio === '9') {
-    if (somaCns(cns) % 11 !== 0) return invalido('soma de verificação não fecha')
+    if (somaCns(cns) % 11 !== 0) return invalido('dígito verificador não confere')
     return valido
   }
 
@@ -239,8 +239,8 @@ function digitoPis(base: string): number {
 
 function validarPis(valor: string): Validacao {
   const pis = soDigitos(valor)
-  if (pis.length !== 11) return invalido(`precisa de 11 dígitos, tem ${pis.length}`)
-  if (todosIguais(pis)) return invalido('todos os dígitos iguais')
+  if (pis.length !== 11) return invalido(`tem ${pis.length} dígitos, precisa de 11`)
+  if (todosIguais(pis)) return invalido('todos os dígitos são iguais')
 
   const esperado = digitoPis(pis.slice(0, 10))
   if (String(esperado) !== pis[10]) return invalido(`dígito verificador deveria ser ${esperado}`)

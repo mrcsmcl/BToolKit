@@ -167,6 +167,11 @@ export default function Repositorios(): ReactNode {
     })
   }, [adicionarAtividade, registrar])
 
+  /** Evita o plural entre parênteses espalhado pelas mensagens. */
+  function plural(n: number, singular: string, plural: string): string {
+    return `${n} ${n === 1 ? singular : plural}`
+  }
+
   const alvos = useMemo(() => {
     const selecionados = linhas.filter((l) => marcados.has(l.caminho))
     return selecionados.length > 0 ? selecionados : linhas
@@ -215,7 +220,7 @@ export default function Repositorios(): ReactNode {
     )
 
     registrar('')
-    registrar(`== ${titulo} - ${repos.length} repositório(s) ==`, 'titulo')
+    registrar(`${titulo} — ${plural(repos.length, 'repositório', 'repositórios')}`, 'titulo')
 
     try {
       const resumo = await window.api.repos.executar(kind, repos, branch.trim())
@@ -228,18 +233,24 @@ export default function Repositorios(): ReactNode {
       )
 
       if (resumo.cancelado) {
-        registrar('-- operação cancelada pelo usuário --', 'aviso')
-        adicionarAtividade('Operação', 'Cancelada pelo usuário', 'pulado')
+        registrar('Operação cancelada.', 'aviso')
+        adicionarAtividade('Operação', 'Cancelada', 'pulado')
       } else if (!silencioso || resumo.falhas > 0) {
+        // Só o que aconteceu: contador zerado não informa nada.
+        const partes = [
+          resumo.ok > 0 && plural(resumo.ok, 'concluído', 'concluídos'),
+          resumo.pulados > 0 && plural(resumo.pulados, 'pulado', 'pulados'),
+          resumo.falhas > 0 && plural(resumo.falhas, 'com falha', 'com falha')
+        ].filter(Boolean)
         registrar(
-          `-- concluído: ${resumo.ok} ok, ${resumo.pulados} pulado(s), ${resumo.falhas} falha(s) --`,
+          partes.length > 0 ? `Resultado: ${partes.join(', ')}.` : 'Nada a fazer.',
           resumo.falhas > 0 ? 'erro' : 'ok'
         )
       }
     } catch (e) {
       const mensagem = e instanceof Error ? e.message : String(e)
       setTituloAtividade('Falha na operação')
-      registrar(`-- erro inesperado: ${mensagem} --`, 'erro')
+      registrar(`A operação falhou: ${mensagem}`, 'erro')
       adicionarAtividade('Operação', mensagem, 'falhou')
     } finally {
       setOcupado(false)
@@ -254,7 +265,7 @@ export default function Repositorios(): ReactNode {
     setCarregando(true)
     setTituloAtividade('Procurando repositórios')
     setAtividade([])
-    registrar(`procurando repositórios em ${pasta} (até 3 níveis)...`, 'titulo')
+    registrar(`Procurando repositórios em ${pasta}, até 3 níveis de subpasta.`, 'titulo')
 
     try {
       const encontrados = await window.api.repos.procurar(pasta)
@@ -264,12 +275,12 @@ export default function Repositorios(): ReactNode {
 
       if (encontrados.length === 0) {
         setTituloAtividade('Busca concluída')
-        registrar('nenhum repositório git encontrado.', 'aviso')
+        registrar(`Nenhum repositório git em ${pasta}.`, 'aviso')
         adicionarAtividade('Busca', 'Nenhum repositório Git encontrado', 'pulado')
         return
       }
 
-      registrar(`${encontrados.length} repositório(s) encontrado(s).`)
+      registrar(`${plural(encontrados.length, 'repositório encontrado', 'repositórios encontrados')}.`)
       void window.api.repos.gravarConfig({ raiz: pasta, ultimaBranch: branch.trim() })
 
       setCarregando(false)
@@ -277,7 +288,7 @@ export default function Repositorios(): ReactNode {
     } catch (erro) {
       const mensagem = erro instanceof Error ? erro.message : String(erro)
       setTituloAtividade('Falha ao examinar pasta')
-      registrar(`erro ao procurar repositórios: ${mensagem}`, 'erro')
+      registrar(`Não foi possível varrer a pasta: ${mensagem}`, 'erro')
       adicionarAtividade('Busca', mensagem, 'falhou')
     } finally {
       setCarregando(false)
@@ -291,7 +302,8 @@ export default function Repositorios(): ReactNode {
     const sujos = alvos.filter((l) => l.alteracoes > 0).length
     if (sujos > 0) {
       registrar(
-        `${sujos} repositório(s) com alterações pendentes terão stash automático — nada é perdido.`,
+        `${plural(sujos, 'repositório tem', 'repositórios têm')} alterações pendentes. ` +
+          'Elas vão para o stash antes da troca, e nada é perdido.',
         'aviso'
       )
     }
@@ -311,8 +323,8 @@ export default function Repositorios(): ReactNode {
 
     registrar('')
     registrar(
-      `ATENÇÃO: ${comStash.length} repositório(s) com alterações guardadas no stash. ` +
-        'Elas saíram da pasta e voltam com os comandos abaixo:',
+      `${plural(comStash.length, 'repositório ficou', 'repositórios ficaram')} com alterações no stash. ` +
+        'Elas saíram da pasta de trabalho; para trazer de volta:',
       'aviso'
     )
     for (const l of comStash) {
@@ -395,7 +407,7 @@ export default function Repositorios(): ReactNode {
     <div className="repos-root">
       {gitOk === false && (
         <p role="alert" className="m-3 mb-0 rounded-md border border-red-900/60 bg-red-950/40 px-3 py-2 text-xs text-red-300">
-          Git não encontrado no PATH. Instale o Git for Windows para usar esta ferramenta.
+          Git não encontrado no PATH. Instale o Git for Windows e reabra o BToolKit.
         </p>
       )}
 
@@ -407,7 +419,9 @@ export default function Repositorios(): ReactNode {
           </h1>
           <div className="repos-header__meta">
             <span>{linhas.length} encontrado(s)</span>
-            {marcados.size > 0 && <span>· {marcados.size} selecionado(s)</span>}
+            {marcados.size > 0 && (
+              <span>· {plural(marcados.size, 'selecionado', 'selecionados')}</span>
+            )}
             {gitOk !== null && (
               <span
                 className={`repos-git-dot ${gitOk ? 'repos-git-dot--ok' : 'repos-git-dot--erro'}`}
@@ -449,7 +463,7 @@ export default function Repositorios(): ReactNode {
               }}
             >
               <Icone icon={faFolderOpen} aria-hidden="true" />
-              Procurar…
+              Escolher pasta…
             </Botao>
 
             <div
@@ -549,7 +563,7 @@ export default function Repositorios(): ReactNode {
                   <th className="repos-col-group px-2 py-2 font-semibold">Grupo</th>
                   <th className="px-2 py-2 font-semibold">Repositório</th>
                   <th className="px-2 py-2 font-semibold">Branch atual</th>
-                  <th className="px-2 py-2 text-right font-semibold">Alt.</th>
+                  <th className="px-2 py-2 text-right font-semibold" title="Arquivos com alterações não enviadas">Alterações</th>
                   <th className="repos-col-stash px-2 py-2 text-right font-semibold">Stash</th>
                   <th className="repos-col-remote px-2 py-2 font-semibold">Remoto</th>
                   <th className="px-2 py-2 font-semibold">Status</th>
@@ -597,7 +611,7 @@ export default function Repositorios(): ReactNode {
                 {linhas.length === 0 && (
                   <tr>
                     <td colSpan={8} className="px-3 py-8 text-center text-xs text-muted">
-                      Escolha a pasta raiz e clique em Recarregar.
+                      Escolha a pasta raiz e clique em Recarregar para listar os repositórios.
                     </td>
                   </tr>
                 )}
@@ -616,7 +630,7 @@ export default function Repositorios(): ReactNode {
             <span role="status" aria-live="polite">
               {emAndamento
                 ? carregando
-                  ? 'Examinando pasta…'
+                  ? 'Procurando repositórios…'
                   : `${progresso.feitos}/${progresso.total} · ${progresso.texto}`
                 : progresso.texto}
             </span>
@@ -628,7 +642,7 @@ export default function Repositorios(): ReactNode {
                 onClick={() => executar('update', 'Atualizando (fetch + fast-forward)', alvos)}
               >
                 <Icone icon={faArrowsRotate} aria-hidden="true" />
-                Atualizar tudo
+                {marcados.size > 0 ? `Atualizar ${marcados.size}` : 'Atualizar tudo'}
               </Botao>
               <Botao variante="perigo" disabled={!ocupado} onClick={() => window.api.repos.cancelar()}>
                 <Icone icon={faXmark} aria-hidden="true" />
@@ -663,7 +677,7 @@ export default function Repositorios(): ReactNode {
             {atividade.length === 0 ? (
               <div className="ui-vazio repos-events-empty">
                 <p>
-                  Os resultados de cada repositório aparecerão aqui durante uma operação.
+                  Cada repositório aparece aqui assim que termina.
                 </p>
               </div>
             ) : (

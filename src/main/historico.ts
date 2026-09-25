@@ -113,13 +113,13 @@ async function carregarGitLocal(): Promise<HistoricoResult> {
     return {
       ok: false,
       codigo: 'sem-commits',
-      mensagem: 'Não foi possível encontrar commits no repositório do BToolKit.'
+      mensagem: 'Não foi possível ler os commits deste repositório.'
     }
   }
 
   const commits = parsearCommits(resultado.stdout)
   if (commits.length === 0) {
-    return { ok: false, codigo: 'sem-commits', mensagem: 'O repositório ainda não possui commits.' }
+    return { ok: false, codigo: 'sem-commits', mensagem: 'O repositório ainda não tem commits.' }
   }
 
   return {

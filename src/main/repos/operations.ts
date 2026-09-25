@@ -147,8 +147,8 @@ async function atualizarPorFastForward(
 
   const erro = resumoErro(merge)
   const mensagem = /local changes|would be overwritten/i.test(erro)
-    ? 'alterações locais impedem a atualização - resolver manualmente'
-    : 'divergiu - resolver manualmente'
+    ? 'alterações locais impedem a atualização; resolva manualmente'
+    : 'a branch divergiu do remoto; resolva manualmente'
 
   return falhou(mensagem, saidaCompleta(merge))
 }
@@ -219,7 +219,7 @@ export async function checkout(
       )
     }
 
-    avisos.push(`STASH CRIADO (${marca}) - recupere com: git -C "${repo.caminho}" stash pop`)
+    avisos.push(`alterações guardadas no stash "${marca}"`)
     detalhe.push(saidaCompleta(stash))
     repo.alteracoes = 0
   }
@@ -242,9 +242,9 @@ export async function checkout(
 
   const mensagem =
     ff.outcome === 'falhou'
-      ? `na branch ${branch}, mas ${ff.mensagem}`
+      ? `está na branch ${branch}, mas ${ff.mensagem}`
       : ff.outcome === 'ok'
-        ? `na branch ${branch} (${ff.mensagem})`
+        ? `na branch ${branch}: ${ff.mensagem}`
         : `na branch ${branch}`
 
   return {
@@ -276,7 +276,7 @@ export async function executarEmLote(
       try {
         resultado = await operacao(repo, signal)
       } catch (e) {
-        resultado = falhou(`erro inesperado: ${e instanceof Error ? e.message : String(e)}`)
+        resultado = falhou(`falhou: ${e instanceof Error ? e.message : String(e)}`)
       }
 
       // Um git morto pelo cancelamento devolve erro; isso nao e falha do repositorio.
