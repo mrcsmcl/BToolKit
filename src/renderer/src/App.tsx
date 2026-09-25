@@ -7,6 +7,7 @@ import {
   faCircleCheck,
   faDownload,
   faGithub,
+  faGlobe,
   faHouse,
   faLock,
   faMagnifyingGlass
@@ -33,11 +34,15 @@ export default function App(): ReactNode {
   const [versaoApp, setVersaoApp] = useState('')
   const [checando, setChecando] = useState(false)
   const [semNovidade, setSemNovidade] = useState(false)
+  const [urlSite, setUrlSite] = useState('')
   const timerConfirmacao = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   useEffect(() => {
     // No site não existe ponte: a versão vem do release consultado pelo ambiente.
-    if (noApp) void window.api.updater.getVersion().then(setVersaoApp)
+    if (noApp) {
+      void window.api.updater.getVersion().then(setVersaoApp)
+      void window.api.app.urlSite().then(setUrlSite)
+    }
     return () => clearTimeout(timerConfirmacao.current)
   }, [noApp])
 
@@ -285,6 +290,19 @@ export default function App(): ReactNode {
 
               {railExpandida && version && (
                 <span className="whitespace-nowrap text-[10px]">v{version}</span>
+              )}
+
+              {noApp && urlSite && (
+                <button
+                  type="button"
+                  onClick={() => window.api.app.abrirSite()}
+                  title={`Abrir o site do BToolKit (${urlSite})`}
+                  aria-label="Abrir o site do BToolKit"
+                  className="app-rail-footer__button"
+                >
+                  <Icone icon={faGlobe} />
+                  {railExpandida && <span>Site</span>}
+                </button>
               )}
 
               {noApp ? (

@@ -17,12 +17,34 @@ function urlRepositorio(): string {
     .replace(/^git:\/\//, 'https://')
 }
 
+/**
+ * Endereço do site no GitHub Pages, derivado do mesmo campo `repository`.
+ * Project page mora em <dono>.github.io/<repo>/ — se o repositório mudar de
+ * nome ou de dono, isto acompanha sozinho.
+ */
+function urlSite(): string {
+  const repo = /^https:\/\/github\.com\/([^/]+)\/([^/]+)$/.exec(urlRepositorio())
+  if (!repo) return ''
+
+  const [, dono, nome] = repo
+  return `https://${dono.toLowerCase()}.github.io/${nome}/`
+}
+
 export function setupApp(): void {
   ipcMain.handle('app:url-repositorio', () => urlRepositorio())
   ipcMain.handle('app:historico', () => carregarHistorico())
   ipcMain.handle('app:avatar-contribuidor', (_evento, commitHash: unknown) =>
     carregarAvatarContribuidor(commitHash, urlRepositorio())
   )
+
+  ipcMain.handle('app:url-site', () => urlSite())
+
+  ipcMain.handle('app:abrir-site', async () => {
+    const url = urlSite()
+    if (url.startsWith('https://')) {
+      await shell.openExternal(url)
+    }
+  })
 
   ipcMain.handle('app:abrir-repositorio', async () => {
     const url = urlRepositorio()

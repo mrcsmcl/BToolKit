@@ -37,7 +37,7 @@ A interface usa somente os grupos `app`, `updater` e `repos`. Assinaturas de `on
 
 | Grupo | Métodos |
 | --- | --- |
-| `api.app` | `urlRepositorio`, `abrirRepositorio`, `historico`, `avatarContribuidor` |
+| `api.app` | `urlRepositorio`, `abrirRepositorio`, `urlSite`, `abrirSite`, `historico`, `avatarContribuidor` |
 | `api.updater` | `getStatus`, `getVersion`, `check`, `install`, `adiar`, `onStatus` |
 | `api.repos` | `versaoGit`, `lerConfig`, `gravarConfig`, `escolherPasta`, `abrirPasta`, `procurar`, `executar`, `cancelar`, `onProgresso` |
 
@@ -425,7 +425,8 @@ As únicas diferenças visuais, todas comandadas por `useAmbiente()`:
   o porquê em uma frase e o botão de download. O componente não é montado, então o chunk
   dela nem é baixado.
 - **Rodapé da rail:** GitHub abre o repositório em vez do Changelog, e o botão de
-  atualizar vira o de download.
+  atualizar vira o de download. O atalho para o site não aparece — quem está no navegador
+  já chegou lá.
 
 O Changelog não aparece no site: ele lê o histórico pelo processo principal.
 

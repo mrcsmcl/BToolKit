@@ -71,7 +71,7 @@ na lógica.
 src/
 ├── main/                processo principal — Node completo, acesso ao sistema
 │   ├── index.ts         ciclo de vida da janela, instância única
-│   ├── app.ts           URL do repositório, histórico, avatares
+│   ├── app.ts           URLs do repositório e do site, histórico, avatares
 │   ├── historico.ts     changelog: git local em dev, snapshot no pacote
 │   ├── updater.ts       atualização automática
 │   └── repos/           ferramenta "Repositórios" (lógica)

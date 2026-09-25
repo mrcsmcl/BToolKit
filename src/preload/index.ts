@@ -13,6 +13,8 @@ const api = {
   app: {
     urlRepositorio: (): Promise<string> => ipcRenderer.invoke('app:url-repositorio'),
     abrirRepositorio: (): Promise<void> => ipcRenderer.invoke('app:abrir-repositorio'),
+    urlSite: (): Promise<string> => ipcRenderer.invoke('app:url-site'),
+    abrirSite: (): Promise<void> => ipcRenderer.invoke('app:abrir-site'),
     historico: (): Promise<HistoricoResult> => ipcRenderer.invoke('app:historico'),
     avatarContribuidor: (commitHash: string): Promise<AvatarContribuidorResult> =>
       ipcRenderer.invoke('app:avatar-contribuidor', commitHash)
