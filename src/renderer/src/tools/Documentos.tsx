@@ -395,11 +395,6 @@ export default function Documentos(): ReactNode {
                 </label>
               </section>
 
-              <div className="doc-warning">
-                <span>!</span>
-                <p>Valores sintaticamente válidos para teste. Não representam pessoas reais nem confirmam existência cadastral.</p>
-              </div>
-
               <section className="doc-generated-panel" aria-label="Documentos gerados">
                 <header>
                   <h2>Gerados</h2>

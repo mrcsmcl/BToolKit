@@ -693,28 +693,6 @@
   outline-offset: 2px;
 }
 
-.doc-warning {
-  display: flex;
-  flex: 0 0 auto;
-  align-items: flex-start;
-  gap: 8px;
-  border: 1px solid #5e492d;
-  border-radius: 8px;
-  padding: 8px 10px;
-  background: rgb(58 44 23 / 12%);
-  color: #cda66e;
-}
-
-.doc-warning > span {
-  font-weight: 700;
-}
-
-.doc-warning p {
-  margin: 0;
-  font-size: 8.5px;
-  line-height: 1.5;
-}
-
 .doc-generated-panel {
   flex: 1;
 }
