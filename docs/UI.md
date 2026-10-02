@@ -238,6 +238,21 @@ Altura de 32 px. Variantes: primário sólido claro, secundário com borda e per
 vermelho. Desabilitado reduz opacidade e bloqueia ponteiro. Uma tela não deve ter mais de
 uma ação primária por grupo operacional.
 
+### Segmentado
+
+`.ui-seg` com `.ui-seg__item` dentro, em `componentes.css`. Para escolher **um entre
+poucos**: modo de trabalho, espécie de cadastro, formato de cópia. Caixa de 36 px com fundo
+rebaixado, itens de 28 px, e o ativo ganha `--color-surface-2` com sombra.
+
+Não é uma fileira de `ui-btn`. O botão dispara uma ação; aqui as opções são excludentes, e o
+fundo rebaixado é o que mostra que elas vivem dentro de um mesmo campo. Se as opções não
+forem mutuamente exclusivas, use botões soltos.
+
+Nasceu como `.doc-mode-switch` e virou primitivo quando a mesma ideia já aparecia com cinco
+aparências diferentes — 20, 25, 26 e 28 px de altura, fonte de 7,5 a 10 px, com e sem borda.
+Os filtros de resultado do Documentos (`.doc-result-filters`, 25 px) ainda estão fora: são
+mais densos de propósito, por ficarem dentro da faixa de um painel.
+
 ### Campo de texto
 
 Superfície escura, borda de 1 px, altura de 32 px e foco visível. Caminhos e branches usam

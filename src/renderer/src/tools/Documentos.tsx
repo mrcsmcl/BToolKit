@@ -238,11 +238,11 @@ export default function Documentos(): ReactNode {
 
         <section className="doc-workspace">
           <header className="doc-modebar">
-            <div className="doc-mode-switch" aria-label="Modo de trabalho">
+            <div className="ui-seg" role="group" aria-label="Modo de trabalho">
               <button
                 type="button"
                 aria-pressed={modo === 'validar'}
-                className={modo === 'validar' ? 'doc-mode--ativo' : ''}
+                className={`ui-seg__item ${modo === 'validar' ? 'ui-seg__item--ativo' : ''}`}
                 onClick={() => setModo('validar')}
               >
                 <Icone icon={faCheck} aria-hidden="true" />
@@ -251,7 +251,7 @@ export default function Documentos(): ReactNode {
               <button
                 type="button"
                 aria-pressed={modo === 'gerar'}
-                className={modo === 'gerar' ? 'doc-mode--ativo' : ''}
+                className={`ui-seg__item ${modo === 'gerar' ? 'ui-seg__item--ativo' : ''}`}
                 onClick={() => setModo('gerar')}
               >
                 <Icone icon={faRotate} aria-hidden="true" />
