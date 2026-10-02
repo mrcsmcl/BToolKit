@@ -246,6 +246,11 @@ body {
 
 
 
+.repos-folder-actions {
+  display: flex;
+  gap: 7px;
+}
+
 .repos-table {
   min-width: 0;
   min-height: 0;

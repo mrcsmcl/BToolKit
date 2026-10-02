@@ -133,6 +133,10 @@ export default function Repositorios(): ReactNode {
         disponivel ? versao : 'git não encontrado no PATH. Instale o Git for Windows.',
         disponivel ? 'titulo' : 'erro'
       )
+
+      // Abrir ja mostrando a pasta de sempre: sem isso a tela comeca vazia e
+      // o primeiro clique e sempre o mesmo.
+      if (disponivel && config.raiz.trim()) void carregar(config.raiz, true)
     })()
 
     return () => {
@@ -258,10 +262,19 @@ export default function Repositorios(): ReactNode {
     }
   }
 
-  async function carregar(): Promise<void> {
+  /**
+   * `inicial` marca a varredura automatica da abertura.
+   *
+   * Ela recebe a pasta por parametro porque o `raiz` do estado ainda nao foi
+   * atualizado quando o efeito de montagem a chama, e nao regrava a
+   * configuracao: ela acabou de ser lida de la, e o `branch` do primeiro
+   * render ainda e vazio — gravar apagaria a branch salva.
+   */
+  async function carregar(pastaAlvo = raiz, inicial = false): Promise<void> {
     if (ocupado || carregando || gitOk === false) return
 
-    const pasta = raiz.trim()
+    const pasta = pastaAlvo.trim()
+    if (!pasta) return
     setCarregando(true)
     setTituloAtividade('Procurando repositórios')
     setAtividade([])
@@ -281,7 +294,7 @@ export default function Repositorios(): ReactNode {
       }
 
       registrar(`${plural(encontrados.length, 'repositório encontrado', 'repositórios encontrados')}.`)
-      void window.api.repos.gravarConfig({ raiz: pasta, ultimaBranch: branch.trim() })
+      if (!inicial) void window.api.repos.gravarConfig({ raiz: pasta, ultimaBranch: branch.trim() })
 
       setCarregando(false)
       await executar('refresh', 'Lendo estado local', novas, true)
@@ -432,14 +445,6 @@ export default function Repositorios(): ReactNode {
             )}
           </div>
         </div>
-        <Botao
-          className="repos-reload-button"
-          disabled={bloqueado}
-          onClick={carregar}
-        >
-          <Icone icon={faRotate} aria-hidden="true" />
-          Recarregar
-        </Botao>
       </header>
 
       <div className="repos-shell">
@@ -455,16 +460,30 @@ export default function Repositorios(): ReactNode {
               />
             </label>
 
-            <Botao
-              disabled={bloqueado}
-              onClick={async () => {
-                const escolhida = await window.api.repos.escolherPasta(raiz)
-                if (escolhida) setRaiz(escolhida)
-              }}
-            >
-              <Icone icon={faFolderOpen} aria-hidden="true" />
-              Escolher pasta…
-            </Botao>
+            <div className="repos-folder-actions">
+              <Botao
+                disabled={bloqueado}
+                onClick={async () => {
+                  const escolhida = await window.api.repos.escolherPasta(raiz)
+                  if (escolhida) setRaiz(escolhida)
+                }}
+                aria-label="Escolher pasta"
+                title="Escolher outra pasta raiz"
+              >
+                <Icone icon={faFolderOpen} aria-hidden="true" />
+                Escolher…
+              </Botao>
+
+              <Botao
+                className="repos-reload-button"
+                disabled={bloqueado}
+                onClick={() => void carregar()}
+                title="Varrer a pasta de novo e reler o estado de cada repositório"
+              >
+                <Icone icon={faRotate} aria-hidden="true" />
+                Recarregar
+              </Botao>
+            </div>
 
             <div
               className="repos-branch-combobox min-w-0"
