@@ -1,0 +1,270 @@
+/* CEP — estilo exclusivo da ferramenta.
+ *
+ * Mora junto do componente e é importado por ele. Botão, campo, rótulo, selo e
+ * estado vazio vêm de componentes.css.
+ */
+
+.cep-root {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+}
+
+
+.cep-shell {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  padding: 16px 18px;
+  gap: 12px;
+}
+
+/* -------------------------------------------------------------------- busca */
+
+.cep-busca {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 9px;
+  padding: 11px;
+  background: var(--color-surface);
+}
+
+.cep-campo {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 170px;
+  flex-direction: column;
+}
+
+/* O rótulo já tem margem; aqui o espaçamento é da coluna. */
+.cep-campo .ui-label {
+  margin-bottom: 5px;
+}
+
+.cep-campo--curto {
+  flex: 0 0 160px;
+}
+
+.cep-campo--uf {
+  flex: 0 0 86px;
+}
+
+.cep-campo select {
+  cursor: pointer;
+}
+
+/* A busca sem botao precisa dizer que esta acontecendo alguma coisa. */
+.cep-estado-busca {
+  align-self: center;
+  min-width: 68px;
+  color: var(--color-muted);
+  font-size: 10px;
+}
+
+/* ------------------------------------------------- sugestao de municipio */
+
+.cep-sugestao {
+  display: flex;
+  width: 100%;
+  align-items: baseline;
+  gap: 12px;
+  border-bottom: 1px solid var(--color-border);
+  padding: 8px 12px;
+  text-align: left;
+  transition: background 120ms ease;
+}
+
+.cep-sugestao:hover {
+  background: var(--color-surface-2);
+}
+
+.cep-sugestao strong {
+  flex: 0 0 auto;
+  color: var(--color-accent);
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.cep-sugestao span {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  font-size: 10.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cep-sugestao em {
+  flex: 0 0 auto;
+  color: var(--color-muted);
+  font-size: 9.5px;
+  font-style: normal;
+}
+
+.cep-lista > li:last-child .cep-sugestao {
+  border-bottom: 0;
+}
+
+/* ------------------------------------------------------- municipio do IBGE */
+
+.cep-municipio {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 9px;
+  padding: 10px 11px;
+  background: var(--color-surface);
+}
+
+.cep-municipio > div {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: baseline;
+  gap: 9px;
+}
+
+.cep-municipio .ui-label {
+  margin: 0;
+}
+
+.cep-municipio strong {
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.cep-municipio__estado {
+  color: var(--color-muted);
+  font-size: 10.5px;
+}
+
+/* ------------------------------------------------------------------- erro */
+
+.cep-erro {
+  display: flex;
+  margin: 0;
+  flex: 0 0 auto;
+  align-items: flex-start;
+  gap: 8px;
+  border: 1px solid rgb(227 130 130 / 35%);
+  border-radius: 8px;
+  padding: 9px 11px;
+  background: rgb(227 130 130 / 8%);
+  color: #e38282;
+  font-size: 10.5px;
+  line-height: 1.5;
+}
+
+/* -------------------------------------------------------------- resultados */
+
+.cep-resultados {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: 9px;
+  background: var(--color-surface);
+}
+
+.cep-vazio {
+  flex: 1;
+}
+
+/* Mesma faixa de cabeçalho de painel usada nas outras ferramentas. */
+.cep-resultados-topo {
+  display: flex;
+  min-height: 43px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--color-border);
+  padding: 0 11px;
+}
+
+.cep-resultados-topo .ui-label {
+  margin: 0;
+  margin-right: auto;
+}
+
+.cep-lista {
+  min-height: 0;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+}
+
+.cep-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--color-border);
+  padding: 9px 12px;
+}
+
+.cep-item:last-child {
+  border-bottom: 0;
+}
+
+.cep-item:hover {
+  background: var(--color-surface-2);
+}
+
+.cep-item-principal {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.cep-item-principal strong {
+  flex: 0 0 auto;
+  color: var(--color-accent);
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.cep-item-principal span {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 10.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cep-item-detalhe {
+  display: flex;
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px 10px;
+  color: var(--color-muted);
+  font-size: 9.5px;
+}
+
+@media (width <= 820px) {
+  .cep-item {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .cep-item-principal {
+    flex: 1 1 100%;
+  }
+
+  .cep-item-detalhe {
+    flex: 1;
+    justify-content: flex-start;
+  }
+}

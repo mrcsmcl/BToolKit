@@ -7,6 +7,7 @@ import type {
   ProgressUpdate,
   RepoInfo
 } from '../shared/repos'
+import type { BuscaPorEndereco, ResultadoCep, ResultadoMunicipios } from '../shared/cep'
 import type { UpdateStatus } from '../shared/updater'
 
 const api = {
@@ -31,6 +32,13 @@ const api = {
       ipcRenderer.on('updater:status', listener)
       return () => ipcRenderer.off('updater:status', listener)
     }
+  },
+
+  cep: {
+    porCep: (valor: string): Promise<ResultadoCep> => ipcRenderer.invoke('cep:por-cep', valor),
+    porEndereco: (busca: BuscaPorEndereco): Promise<ResultadoCep> =>
+      ipcRenderer.invoke('cep:por-endereco', busca),
+    municipios: (): Promise<ResultadoMunicipios> => ipcRenderer.invoke('cep:municipios')
   },
 
   repos: {

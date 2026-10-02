@@ -2,6 +2,7 @@ import { join } from 'node:path'
 import { app, BrowserWindow, shell } from 'electron'
 import log from 'electron-log'
 import { setupApp } from './app'
+import { setupCep } from './cep'
 import { setupRepos } from './repos'
 import { checkForUpdates, setupUpdater } from './updater'
 
@@ -102,6 +103,7 @@ if (!app.requestSingleInstanceLock()) {
     log.info(`BToolKit ${app.getVersion()} iniciando`)
     setupUpdater()
     setupApp()
+    setupCep()
     setupRepos()
     createWindow()
     void checkForUpdates()

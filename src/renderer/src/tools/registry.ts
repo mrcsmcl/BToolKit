@@ -1,5 +1,5 @@
 import { lazy } from 'react'
-import { faCodeBranch, faShieldHalved, faUsers } from '../components/Icone'
+import { faCodeBranch, faLocationDot, faShieldHalved, faUsers } from '../components/Icone'
 import type { Tool } from './types'
 
 /**
@@ -25,6 +25,15 @@ export const tools: Tool[] = [
     glyph: faUsers,
     runtime: 'universal',
     Component: lazy(() => import('./Cadastros'))
+  },
+  {
+    id: 'cep',
+    name: 'CEP',
+    description: 'Procura o endereço pelo CEP, os CEPs de uma rua ou o município pelo IBGE.',
+    group: 'Dados de teste',
+    glyph: faLocationDot,
+    runtime: 'desktop',
+    Component: lazy(() => import('./Cep'))
   },
   {
     id: 'documentos',
