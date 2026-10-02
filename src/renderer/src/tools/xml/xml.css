@@ -1,0 +1,554 @@
+/* XML — estilo exclusivo da ferramenta.
+ *
+ * Mora junto do componente e é importado por ele, para o site carregar junto.
+ * Botão, campo, rótulo, segmentado e estado vazio vêm de componentes.css.
+ */
+
+.xml-root {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.xml-shell {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  padding: 16px 18px;
+  gap: 12px;
+}
+
+/* ------------------------------------------------------------- área de solta */
+
+.xml-solte {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: 1px dashed var(--color-border);
+  border-radius: 10px;
+  padding: 24px;
+  background: var(--color-surface);
+  transition:
+    border-color 140ms ease,
+    background 140ms ease;
+}
+
+.xml-solte--ativo {
+  border-color: var(--color-accent);
+  background: var(--color-surface-2);
+}
+
+.xml-solte > svg {
+  color: color-mix(in srgb, var(--color-muted) 70%, transparent);
+  font-size: 22px;
+}
+
+.xml-solte p {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 11px;
+}
+
+.xml-ou {
+  margin-top: 6px;
+  color: color-mix(in srgb, var(--color-muted) 80%, transparent);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.xml-seletor {
+  display: none;
+}
+
+.xml-colar {
+  width: 100%;
+  max-width: 620px;
+  min-height: 120px;
+  flex: 0 1 190px;
+  font-size: 10px;
+  resize: none;
+}
+
+/* ------------------------------------------------------------------- estado */
+
+.xml-estado {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 9px;
+  padding: 9px 11px;
+  background: var(--color-surface);
+}
+
+.xml-estado > svg {
+  flex: 0 0 auto;
+  font-size: 13px;
+}
+
+.xml-estado--ok > svg {
+  color: #68c99d;
+}
+
+.xml-estado--erro {
+  border-color: rgb(227 130 130 / 35%);
+  background: rgb(227 130 130 / 8%);
+}
+
+.xml-estado--erro > svg {
+  color: #e38282;
+}
+
+.xml-estado__texto {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.xml-estado__texto strong {
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.xml-estado--erro .xml-estado__texto strong {
+  color: #e38282;
+}
+
+.xml-estado__texto span {
+  color: var(--color-muted);
+  font-size: 9.5px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.xml-arquivo {
+  flex: 0 1 auto;
+  overflow: hidden;
+  color: var(--color-muted);
+  font-size: 9.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ painel */
+
+.xml-painel {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: 9px;
+  background: var(--color-surface);
+  overflow-y: auto;
+}
+
+.xml-painel-topo {
+  display: flex;
+  min-height: 43px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--color-border);
+  padding: 0 11px;
+  position: sticky;
+  top: 0;
+  background: var(--color-surface);
+  z-index: 1;
+}
+
+.xml-painel-topo h2 {
+  margin: 0;
+  color: var(--color-fg);
+  font-size: 10.5px;
+  font-weight: 650;
+}
+
+.xml-nota {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 9.5px;
+  line-height: 1.5;
+}
+
+.xml-painel-topo .xml-nota {
+  margin-right: auto;
+}
+
+.xml-vazio {
+  flex: 1;
+  padding: 24px;
+}
+
+.xml-saida {
+  min-height: 0;
+  flex: 1;
+  margin: 0;
+  padding: 12px;
+  color: var(--color-fg);
+  font-size: 10px;
+  line-height: 1.6;
+  tab-size: 2;
+  white-space: pre;
+  overflow: auto;
+}
+
+/* ------------------------------------------------------------------ resumos */
+
+.xml-hashes {
+  display: grid;
+  margin: 0;
+  padding: 10px 11px;
+  gap: 4px;
+}
+
+.xml-hashes > div {
+  display: grid;
+  align-items: baseline;
+  gap: 10px;
+  grid-template-columns: 92px minmax(0, 1fr);
+}
+
+.xml-hashes dt {
+  color: var(--color-muted);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.xml-hashes dd {
+  margin: 0;
+  min-width: 0;
+  font-size: 10.5px;
+  overflow-wrap: anywhere;
+}
+
+/* Mesma ideia do Cadastros: clicar no valor copia. */
+.xml-valor {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  gap: 7px;
+  border-radius: 6px;
+  margin-left: -6px;
+  padding: 2px 6px;
+  font-size: 10.5px;
+  line-height: 1.45;
+  text-align: left;
+  transition: background 130ms ease;
+}
+
+.xml-valor > span {
+  min-width: 0;
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+
+.xml-valor svg {
+  flex: 0 0 auto;
+  color: var(--color-muted);
+  font-size: 9px;
+  opacity: 0;
+  transition: opacity 130ms ease;
+}
+
+.xml-valor:hover {
+  background: var(--color-surface-2);
+}
+
+.xml-valor:hover svg,
+.xml-valor:focus-visible svg {
+  opacity: 1;
+}
+
+.xml-valor:has(svg[data-icon='check']) svg {
+  color: #68c99d;
+  opacity: 1;
+}
+
+/* --------------------------------------------------------------- conferir */
+
+.xml-conferir {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid var(--color-border);
+  padding: 11px;
+}
+
+.xml-conferir label {
+  display: block;
+}
+
+.xml-veredito {
+  display: flex;
+  margin: 0;
+  align-items: center;
+  gap: 8px;
+  font-size: 10.5px;
+}
+
+.xml-veredito--ok {
+  color: #68c99d;
+}
+
+.xml-veredito--erro {
+  color: #e38282;
+}
+
+.xml-extra {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-top: 1px solid var(--color-border);
+  padding: 11px;
+}
+
+.xml-extra .ui-label {
+  margin: 0;
+}
+
+.xml-extra .xml-hashes {
+  padding: 0;
+}
+
+/* ================================================================ leitura */
+
+/* A visão para ler: seções aninhadas, campos em rótulo/valor e repetições em
+ * tabela. O recuo marca a hierarquia sem gastar largura — por isso é uma borda
+ * à esquerda e não margem, que somaria a cada nível.
+ */
+
+.xml-leitura {
+  min-height: 0;
+  flex: 1;
+  padding: 10px 12px 14px;
+  overflow: auto;
+}
+
+.xml-busca {
+  position: relative;
+  display: flex;
+  flex: 0 1 240px;
+  align-items: center;
+}
+
+.xml-busca svg {
+  position: absolute;
+  left: 9px;
+  color: var(--color-muted);
+  font-size: 10px;
+  pointer-events: none;
+}
+
+.xml-busca .ui-input {
+  height: 26px;
+  padding-left: 26px;
+  font-size: 10px;
+}
+
+/* ------------------------------------------------------------------ grupo */
+
+.xml-leitura__grupo {
+  margin-top: 2px;
+}
+
+.xml-leitura__titulo {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 7px;
+  border-radius: 6px;
+  padding: 5px 7px;
+  text-align: left;
+  transition: background 120ms ease;
+}
+
+.xml-leitura__titulo:hover {
+  background: var(--color-surface-2);
+}
+
+.xml-leitura__titulo svg {
+  flex: 0 0 auto;
+  color: var(--color-muted);
+  font-size: 8px;
+  transition: transform 150ms ease;
+  transform: rotate(90deg);
+}
+
+.xml-leitura__grupo--fechado > .xml-leitura__titulo svg {
+  transform: rotate(0deg);
+}
+
+.xml-leitura__titulo strong {
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.xml-leitura__corpo {
+  margin-left: 11px;
+  border-left: 1px solid var(--color-border);
+  padding-left: 11px;
+}
+
+/* ----------------------------------------------------------------- campos */
+
+.xml-leitura__campos {
+  display: grid;
+  margin: 2px 0 6px;
+  gap: 1px;
+}
+
+.xml-leitura__campo {
+  display: grid;
+  align-items: baseline;
+  gap: 10px;
+  grid-template-columns: minmax(96px, 168px) minmax(0, 1fr);
+}
+
+.xml-leitura__campo dt {
+  overflow: hidden;
+  color: var(--color-muted);
+  font-size: 9.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.xml-leitura__campo dd {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+}
+
+.xml-leitura__vazio {
+  padding: 2px 6px;
+  color: color-mix(in srgb, var(--color-muted) 65%, transparent);
+  font-size: 10px;
+  font-style: italic;
+}
+
+/* ------------------------------------------------------------- atributos */
+
+.xml-leitura__atributos {
+  display: inline-flex;
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.xml-leitura__atributo {
+  display: inline-flex;
+  max-width: 320px;
+  align-items: baseline;
+  gap: 5px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 1px 8px;
+  color: var(--color-muted);
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.xml-leitura__atributo em {
+  color: color-mix(in srgb, var(--color-muted) 75%, transparent);
+  font-style: normal;
+}
+
+/* ----------------------------------------------------------------- tabela */
+
+.xml-leitura__lista {
+  margin: 6px 0 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.xml-leitura__lista > header {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  border-bottom: 1px solid var(--color-border);
+  padding: 6px 10px;
+  background: var(--color-surface-2);
+}
+
+.xml-leitura__lista > header strong {
+  font-size: 10.5px;
+  font-weight: 650;
+}
+
+.xml-leitura__lista > header span {
+  color: var(--color-muted);
+  font-size: 9px;
+}
+
+.xml-leitura__prefixo {
+  margin-left: auto;
+  font-family: Consolas, 'Cascadia Mono', monospace;
+}
+
+.xml-leitura__rolagem {
+  overflow-x: auto;
+}
+
+.xml-leitura__lista table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.xml-leitura__lista th {
+  position: sticky;
+  top: 0;
+  border-bottom: 1px solid var(--color-border);
+  padding: 5px 9px;
+  background: var(--color-surface);
+  color: var(--color-muted);
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.xml-leitura__lista td {
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent);
+  padding: 2px 5px;
+  font-size: 10px;
+  vertical-align: top;
+}
+
+.xml-leitura__lista tr:last-child td {
+  border-bottom: 0;
+}
+
+.xml-leitura__lista tbody tr:hover {
+  background: color-mix(in srgb, var(--color-surface-2) 60%, transparent);
+}
+
+/* A coluna do número da linha é referência, não dado. */
+.xml-leitura__indice {
+  width: 1%;
+  padding-left: 10px !important;
+  color: color-mix(in srgb, var(--color-muted) 70%, transparent);
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+  text-align: right !important;
+}

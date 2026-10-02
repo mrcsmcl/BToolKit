@@ -1,5 +1,11 @@
 import { lazy } from 'react'
-import { faCodeBranch, faLocationDot, faShieldHalved, faUsers } from '../components/Icone'
+import {
+  faCodeBranch,
+  faFileCode,
+  faLocationDot,
+  faShieldHalved,
+  faUsers
+} from '../components/Icone'
 import type { Tool } from './types'
 
 /**
@@ -34,6 +40,15 @@ export const tools: Tool[] = [
     glyph: faLocationDot,
     runtime: 'desktop',
     Component: lazy(() => import('./Cep'))
+  },
+  {
+    id: 'xml',
+    name: 'XML',
+    description: 'Confere, formata e calcula o hash de um arquivo XML.',
+    group: 'Arquivos',
+    glyph: faFileCode,
+    runtime: 'universal',
+    Component: lazy(() => import('./Xml'))
   },
   {
     id: 'documentos',
