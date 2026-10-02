@@ -1,5 +1,5 @@
 import { lazy } from 'react'
-import { faCodeBranch, faShieldHalved } from '../components/Icone'
+import { faCodeBranch, faShieldHalved, faUsers } from '../components/Icone'
 import type { Tool } from './types'
 
 /**
@@ -16,6 +16,15 @@ export const tools: Tool[] = [
     glyph: faCodeBranch,
     runtime: 'desktop',
     Component: lazy(() => import('./Repositorios'))
+  },
+  {
+    id: 'cadastros',
+    name: 'Cadastros',
+    description: 'Gera pessoas e empresas fictícias com documentos válidos.',
+    group: 'Dados de teste',
+    glyph: faUsers,
+    runtime: 'universal',
+    Component: lazy(() => import('./Cadastros'))
   },
   {
     id: 'documentos',

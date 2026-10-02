@@ -1,0 +1,334 @@
+/* Cadastros — estilo exclusivo da ferramenta.
+ *
+ * Mora junto do componente e é importado por ele, para o site carregar junto.
+ * Botão, campo, rótulo e estado vazio vêm de componentes.css.
+ */
+
+.cad-root {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+}
+
+/* Espécie escolhida na faixa de título: o mesmo botão, só marcado. */
+
+.cad-shell {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  padding: 16px 18px;
+  gap: 12px;
+}
+
+/* ------------------------------------------------------------------- barra */
+
+.cad-barra {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 9px;
+  padding: 10px 11px;
+  background: var(--color-surface);
+}
+
+/* Mesmas medidas da barra de quantidade do Documentos. */
+.cad-quantidades {
+  display: flex;
+  margin-top: 5px;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.cad-quantidades .ui-btn:not(.ui-btn--icone) {
+  min-width: 42px;
+}
+
+.cad-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--color-muted);
+  font-size: 9px;
+  cursor: pointer;
+}
+
+.cad-switch input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.cad-switch-track {
+  position: relative;
+  width: 26px;
+  height: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface-2);
+  transition:
+    background 160ms ease,
+    border-color 160ms ease;
+}
+
+.cad-switch-track::after {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-muted);
+  content: '';
+  transition:
+    transform 160ms ease,
+    background 160ms ease;
+}
+
+.cad-switch input:checked + .cad-switch-track {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 22%, transparent);
+}
+
+.cad-switch input:checked + .cad-switch-track::after {
+  background: var(--color-accent);
+  transform: translateX(12px);
+}
+
+.cad-switch input:focus-visible + .cad-switch-track {
+  outline: 2px solid color-mix(in srgb, var(--color-fg) 58%, transparent);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------- conteúdo */
+
+.cad-conteudo {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: 9px;
+  background: var(--color-surface);
+}
+
+.cad-conteudo-topo {
+  display: flex;
+  min-height: 43px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--color-border);
+  padding: 0 11px;
+}
+
+.cad-conteudo-topo h2 {
+  margin: 0;
+  color: var(--color-fg);
+  font-size: 10.5px;
+  font-weight: 650;
+}
+
+.cad-contagem {
+  margin-right: auto;
+  color: var(--color-muted);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+
+
+
+
+.cad-vazio {
+  flex: 1;
+}
+
+/* ---------------------------------------------------------------- cartões */
+
+/* Dois por linha em vez de três: com 300px o endereço quebrava em três linhas
+ * e o rótulo espremia o valor. 420px cabe tudo sem apertar. */
+.cad-cartoes {
+  display: grid;
+  min-height: 0;
+  flex: 1;
+  align-content: start;
+  gap: 10px;
+  padding: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  overflow-y: auto;
+}
+
+.cad-cartao {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-bg);
+}
+
+.cad-cartao > header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 1px solid var(--color-border);
+  padding: 6px 8px 6px 10px;
+}
+
+/* --------------------------------------------------- copiar clicando no valor */
+
+/* O nome e cada valor são botões: clicar copia. O ícone fica apagado até o
+ * ponteiro chegar, para a leitura não virar uma fileira de ícones. */
+.cad-nome,
+.cad-valor {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 7px;
+  border-radius: 6px;
+  text-align: left;
+  transition:
+    background 130ms ease,
+    color 130ms ease;
+}
+
+.cad-nome {
+  flex: 1;
+  padding: 3px 6px;
+  margin-left: -6px;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.cad-valor {
+  width: 100%;
+  padding: 2px 6px;
+  margin-left: -6px;
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+
+.cad-nome > span,
+.cad-valor > span {
+  min-width: 0;
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+
+.cad-nome svg,
+.cad-valor svg {
+  flex: 0 0 auto;
+  color: var(--color-muted);
+  font-size: 9px;
+  opacity: 0;
+  transition: opacity 130ms ease;
+}
+
+.cad-nome:hover,
+.cad-valor:hover {
+  background: var(--color-surface-2);
+}
+
+.cad-nome:hover svg,
+.cad-valor:hover svg,
+.cad-nome:focus-visible svg,
+.cad-valor:focus-visible svg {
+  opacity: 1;
+}
+
+/* Confirmação: o ícone de check fica, mesmo sem o ponteiro em cima. */
+.cad-nome:has(svg[data-icon='check']) svg,
+.cad-valor:has(svg[data-icon='check']) svg {
+  color: #68c99d;
+  opacity: 1;
+}
+
+/* ------------------------------------------------------------------ campos */
+
+.cad-cartao dl {
+  display: grid;
+  margin: 0;
+  padding: 8px 10px 10px;
+  gap: 3px;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.cad-campo {
+  display: grid;
+  align-items: baseline;
+  gap: 10px;
+  grid-template-columns: 104px minmax(0, 1fr);
+}
+
+.cad-cartao dt {
+  color: var(--color-muted);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.cad-cartao dd {
+  margin: 0;
+  min-width: 0;
+}
+
+/* -------------------------------------------------------------- texto bruto */
+
+.cad-saida {
+  min-height: 0;
+  flex: 1;
+  margin: 0;
+  padding: 12px;
+  color: var(--color-fg);
+  font-size: 10px;
+  line-height: 1.6;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* ---------------------------------------------------------------- rodapé */
+
+.cad-rodape {
+  display: flex;
+  min-height: 43px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 14px;
+  border-top: 1px solid var(--color-border);
+  padding: 7px 11px;
+}
+
+.cad-rodape span {
+  color: var(--color-muted);
+  font-size: 9.5px;
+  line-height: 1.5;
+}
+
+.cad-rodape .ui-btn {
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
+@media (width <= 720px) {
+  .cad-barra {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .cad-rodape {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .cad-rodape .ui-btn {
+    margin-left: 0;
+  }
+}
