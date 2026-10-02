@@ -74,7 +74,9 @@ src/
 │   ├── app.ts           URLs do repositório e do site, histórico, avatares
 │   ├── historico.ts     changelog: git local em dev, snapshot no pacote
 │   ├── updater.ts       atualização automática
-│   └── repos/           ferramenta "Repositórios" (lógica)
+│   ├── repos/           ferramenta "Repositórios" (lógica)
+│   └── cep/             consulta de CEP e IBGE (a única ferramenta com rede)
+│                        — XML e Cadastros rodam inteiros no renderer
 ├── preload/
 │   └── index.ts         a ponte: a ÚNICA superfície que a tela enxerga
 ├── renderer/            processo de interface — React, sem acesso ao sistema
@@ -94,6 +96,7 @@ src/
 │   └── web.css          importa o index.css e acrescenta o pouco que é do site
 └── shared/              tipos usados pelos dois lados
     ├── app.ts           histórico e avatares
+    ├── cep.ts           consulta de CEP e a lista de UFs
     ├── repos.ts         ferramenta Repositórios
     └── updater.ts       estados do updater
 ```
@@ -412,7 +415,118 @@ de fora da mensagem — inclusive quando o repositório é pulado.
 
 ---
 
-### 6.4 O site
+### 6.4 CEP e Cadastros
+
+Duas ferramentas de dado brasileiro que se apoiam uma na outra.
+
+**CEP** (`src/main/cep/`) é a **única com rede**, e por isso é `desktop`. A regra 7 da §5.2
+diz que o renderer não alcança a rede — a CSP é `default-src 'self'` —, então no site a
+consulta não aconteceria nem com a tela tentando. `consulta.ts` tem a validação e a
+requisição, separado do `index.ts` para poder ser exercitado sem subir janela.
+
+A tela nunca passa URL: manda CEP, UF, cidade, logradouro ou código do IBGE. UF é conferida
+contra a lista real das 27 — duas letras quaisquer não bastam, `XX` passaria e gastaria uma
+requisição à toa. Cidade e logradouro só aceitam letra, número, espaço, hífen e apóstrofo, o
+que também fecha a porta para `../` no caminho.
+
+São **duas origens**, cada uma no seu módulo:
+
+| Módulo | Origem | Para quê |
+| --- | --- | --- |
+| `consulta.ts` | `viacep.com.br` | endereço pelo CEP, CEPs de um logradouro |
+| `ibge.ts` | `servicodados.ibge.gov.br` | os 5.571 municípios, para filtrar na tela |
+
+Três armadilhas da origem do IBGE:
+
+- O host é `servicodados`, **sem o "s" depois de "servico"** — `servicosdados` não resolve.
+- A UF vem em `microrregiao.mesorregiao.UF`, **menos quando `microrregiao` é `null`** — o
+  caso de municípios recém-criados, hoje Boa Esperança do Norte (MT, 5101837). Nesses ela
+  só existe em `regiao-imediata.regiao-intermediaria.UF`. Sem a alternativa o município
+  entrava sem estado e sumia de qualquer filtro por UF.
+- Não há `content-length`, então o corte de tamanho é pelo corpo já lido.
+
+**A busca enquanto se digita é local.** `todosMunicipios` baixa os 5.571 de uma vez: 2,3 MB
+crus viram 405 KB depois de descartar o aninhamento de regiões, e isso atravessa a ponte uma
+vez por sessão — `Cep.tsx` guarda a lista num módulo, fora do componente. Daí filtrar por
+código ou por nome não custa requisição nenhuma, e a mesma lista alimenta o seletor de
+cidade da busca por endereço.
+
+**No CEP isso não é possível.** A origem recusa CEP incompleto com 400; não existe consulta
+por prefixo. O que dá é dispensar o clique: o modo "Por CEP" consulta sozinho 350 ms depois
+do oitavo dígito, e apagar um dígito limpa o resultado. Por isso ele não tem botão Buscar.
+
+**Cadastros** (`src/renderer/src/tools/cadastros/`) é `universal`: gera pessoa e empresa sem
+tocar em rede. Os documentos saem de `documentos/validadores.ts`, então um CPF ou CNPJ
+gerado aqui passa no validador da outra ferramenta — não existe uma segunda implementação
+do dígito verificador para divergir da primeira.
+
+O endereço merece explicação. A primeira versão sorteava um CEP dentro da faixa do estado;
+a faixa estava certa, mas o espaço de CEP é esparso e, conferindo 33 valores contra a base
+real, **32 não existiam**. Num formulário que consulta o CEP o cadastro morria na primeira
+tela. Hoje `ENDERECOS` guarda 198 endereços verdadeiros — logradouro, bairro, cidade, UF e
+CEP juntos, colhidos da base pública —, e só o número da casa é sorteado. Os 33 conferidos
+depois da troca resolvem todos, na cidade certa.
+
+Para refazer ou ampliar essa tabela, use a própria consulta de CEP por logradouro: busque um
+termo comum em cada cidade e guarde as respostas sem `complemento`, que é faixa de
+numeração e não serve como endereço de cadastro.
+
+Duas coisas que não têm algoritmo e por isso não são tentadas: **RG**, que cada estado emite
+do seu jeito e vários sem dígito verificador — o campo é só a forma —, e **inscrição
+estadual**, que teria 27 implementações diferentes.
+
+---
+
+### 6.5 XML
+
+`src/renderer/src/tools/xml/`. Confere se o documento está bem formado, formata para leitura
+e calcula o resumo. É `universal` e **não usa IPC**: o renderer do Electron é contexto seguro
+mesmo servindo de `file://`, então `crypto.subtle` e `DOMParser` existem nos dois produtos.
+
+- `documento.ts` — análise, formatação e minificação sobre o `DOMParser` do navegador.
+- `hash.ts` — SHA-1, SHA-256 e SHA-512 pelo `crypto.subtle`, e MD5 implementado à mão
+  porque a Web Crypto não o tem. Conferido contra os sete vetores da RFC 1321, contra o
+  `node:crypto` em dezesseis tamanhos ao redor da borda de bloco de 64 bytes, e com 3 MB.
+
+O modo **Leitura** (`leitura.ts` e `VisaoLeitura.tsx`) é a visão para quem não lê XML:
+seções aninhadas, campos como rótulo/valor e repetições como tabela de verdade.
+
+A parte que custou acertar é a detecção da tabela. A primeira versão só juntava irmãos
+cujos filhos fossem todos folha — e numa NF-e o item é `<det><prod>…campos…</prod></det>`,
+com o que interessa um nível abaixo, então nenhuma tabela aparecia. Hoje `achatar` desce até
+as folhas montando colunas por caminho (`prod/cProd`), desiste quando o item tem repetição
+interna — aí ele não cabe numa linha — e, quando toda coluna de dado compartilha o mesmo
+caminho, ele vira legenda do cabeçalho em vez de prefixo repetido em cada coluna.
+
+O filtro preserva os ancestrais de quem casou: sem isso o resultado sairia solto da
+hierarquia e perderia o que dá sentido ao valor. Os nomes aparecem sem prefixo de namespace,
+porque numa tela de leitura o prefixo é ruído; o nome completo fica no `title`.
+
+**O rótulo é o nome da tag, e isso é o limite.** `cUF` continua `cUF`: traduzir exigiria
+conhecer o esquema de cada documento, e chutar seria pior que não traduzir.
+
+Três decisões que valem manter:
+
+- **Espaço dentro do texto de um elemento não é aparado.** `<b>  dois espaços  </b>` sai
+  como entrou. Aparar deixa o resultado mais bonito e muda o documento — era um defeito da
+  primeira versão, pego pelo teste que reminifica a saída e compara com a entrada. O que se
+  descarta é só o nó que é espaço inteiro **entre** elementos, e é isso que permite
+  reindentar sem mentir. Pelo mesmo motivo, elemento com conteúdo misto sai numa linha só.
+- **A decodificação respeita o que o arquivo declara.** XML de sistema antigo costuma vir em
+  ISO-8859-1; lê-lo como UTF-8 estraga todo acento. O prólogo é ASCII nos dois casos, então
+  dá para espiar o `encoding=` antes de escolher o decodificador.
+- **O hash é dos bytes, e sai mesmo com o XML quebrado.** Quem confere hash quer saber se o
+  arquivo chegou inteiro, o que não depende de ele ser válido.
+
+**O que a ferramenta não faz:** validar assinatura digital. Ela *mostra* `DigestValue`,
+`Reference` e algoritmo como estão escritos no arquivo, mas conferir se batem exigiria a
+canonicalização do XML-DSig — com as regras próprias de namespace e ordem de atributos — mais
+a verificação do certificado. O "SHA-256 do conteúdo sem formatação" **não** é C14N e está
+rotulado assim na tela; serve só para comparar dois arquivos que diferem na indentação.
+
+---
+
+### 6.6 O site
 
 O site **não tem casca própria**. Ele monta a mesma `App.tsx` do aplicativo — mesma rail,
 mesmo Início, mesmo roteamento — e só informa onde está rodando:
