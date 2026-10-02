@@ -602,6 +602,16 @@
   gap: 5px;
 }
 
+/* Os interruptores de geração: as opções que a ferramenta declara, mais a
+ * máscara. Quebram para baixo antes de espremer a barra de quantidade. */
+.doc-switches {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px 14px;
+}
+
 .doc-mask-switch {
   display: inline-flex;
   align-items: center;
@@ -793,6 +803,10 @@
     align-items: flex-start;
     flex-direction: column;
     gap: 10px;
+  }
+
+  .doc-switches {
+    justify-content: flex-start;
   }
 }
 

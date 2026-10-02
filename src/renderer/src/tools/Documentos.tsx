@@ -19,6 +19,7 @@ import {
   DOCUMENTOS,
   documentoPorTipo,
   type CategoriaDocumento,
+  type OpcoesGeracao,
   type TipoDocumento
 } from './documentos/validadores'
 import './documentos/documentos.css'
@@ -62,6 +63,7 @@ export default function Documentos(): ReactNode {
   const [comMascara, setComMascara] = useState(true)
   const [copiado, setCopiado] = useState('')
   const [modo, setModo] = useState<Modo>('validar')
+  const [opcoesGeracao, setOpcoesGeracao] = useState<OpcoesGeracao>({})
   const [catalogoAberto, setCatalogoAberto] = useState(true)
   const [busca, setBusca] = useState('')
   const [categoria, setCategoria] = useState<CategoriaFiltro>('todos')
@@ -113,8 +115,8 @@ export default function Documentos(): ReactNode {
     setTimeout(() => setCopiado((atual) => (atual === marca || atual === 'erro' ? '' : atual)), 1600)
   }
 
-  function gerar(quantidade: number): void {
-    setGerados(Array.from({ length: quantidade }, () => documento.gerar()))
+  function gerar(quantidade: number, opcoes = opcoesGeracao): void {
+    setGerados(Array.from({ length: quantidade }, () => documento.gerar(opcoes)))
   }
 
   function trocarTipo(novo: TipoDocumento): void {
@@ -388,11 +390,29 @@ export default function Documentos(): ReactNode {
                     </Botao>
                   </div>
                 </div>
-                <label className="doc-mask-switch">
-                  <input type="checkbox" checked={comMascara} onChange={(evento) => setComMascara(evento.target.checked)} />
-                  <span className="doc-mask-track" aria-hidden="true" />
-                  Com máscara
-                </label>
+                <div className="doc-switches">
+                  {documento.opcoes?.map((opcao) => (
+                    <label key={opcao.chave} className="doc-mask-switch" title={opcao.dica}>
+                      <input
+                        type="checkbox"
+                        checked={opcoesGeracao[opcao.chave] ?? false}
+                        onChange={(evento) => {
+                          const atualizadas = { ...opcoesGeracao, [opcao.chave]: evento.target.checked }
+                          setOpcoesGeracao(atualizadas)
+                          // Alternar sem regerar deixaria a lista contradizendo o interruptor.
+                          if (gerados.length > 0) gerar(gerados.length, atualizadas)
+                        }}
+                      />
+                      <span className="doc-mask-track" aria-hidden="true" />
+                      {opcao.rotulo}
+                    </label>
+                  ))}
+                  <label className="doc-mask-switch">
+                    <input type="checkbox" checked={comMascara} onChange={(evento) => setComMascara(evento.target.checked)} />
+                    <span className="doc-mask-track" aria-hidden="true" />
+                    Com máscara
+                  </label>
+                </div>
               </section>
 
               <section className="doc-generated-panel" aria-label="Documentos gerados">

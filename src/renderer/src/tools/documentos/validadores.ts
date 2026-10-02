@@ -8,6 +8,23 @@
 export type TipoDocumento = 'cpf' | 'cnpj' | 'caepf' | 'cns' | 'pis'
 export type CategoriaDocumento = 'identificacao' | 'empresa' | 'trabalho'
 
+/**
+ * Variações de geração. Cada documento declara em `opcoes` quais entende, e a
+ * tela monta o interruptor a partir disso — assim um documento novo com opção
+ * própria não exige mexer no componente.
+ */
+export interface OpcoesGeracao {
+  /** CNPJ: usa letras na raiz, no formato alfanumérico da Receita. */
+  alfanumerico?: boolean
+}
+
+export interface OpcaoGeracao {
+  chave: keyof OpcoesGeracao
+  rotulo: string
+  /** Vai para o title do interruptor; explica o que muda no valor gerado. */
+  dica: string
+}
+
 export interface Documento {
   tipo: TipoDocumento
   categoria: CategoriaDocumento
@@ -16,8 +33,10 @@ export interface Documento {
   /** Comprimento depois de remover formatação. */
   tamanho: number
   validar: (valor: string) => Validacao
-  gerar: () => string
+  gerar: (opcoes?: OpcoesGeracao) => string
   formatar: (valor: string) => string
+  /** Ausente quando a geração não tem variação. */
+  opcoes?: OpcaoGeracao[]
 }
 
 export type Validacao = { ok: true } | { ok: false; motivo: string }
@@ -40,9 +59,16 @@ function todosIguais(valor: string): boolean {
   return valor.split('').every((c) => c === valor[0])
 }
 
-function digitosAleatorios(quantidade: number): string {
+const DIGITOS = '0123456789'
+const ALFANUMERICO = `${DIGITOS}ABCDEFGHIJKLMNOPQRSTUVWXYZ`
+
+function caracteresAleatorios(quantidade: number, alfabeto: string): string {
   const bytes = crypto.getRandomValues(new Uint32Array(quantidade))
-  return Array.from(bytes, (n) => String(n % 10)).join('')
+  return Array.from(bytes, (n) => alfabeto[n % alfabeto.length]).join('')
+}
+
+function digitosAleatorios(quantidade: number): string {
+  return caracteresAleatorios(quantidade, DIGITOS)
 }
 
 function aplicarMascara(valor: string, mascara: string): string {
@@ -121,9 +147,23 @@ function validarCnpj(valor: string): Validacao {
   return valido
 }
 
-function gerarCnpj(): string {
-  let raiz = digitosAleatorios(8) + '0001'
-  while (todosIguais(raiz)) raiz = digitosAleatorios(8) + '0001'
+/**
+ * O sufixo de ordem continua numérico nas duas formas: `0001` é a matriz, e é
+ * o que aparece na esmagadora maioria dos cadastros. A variação alfanumérica
+ * entra na raiz, que é onde a Receita passa a admitir letras.
+ *
+ * Os dois últimos caracteres são sempre dígitos, inclusive no alfanumérico —
+ * o verificador não aceita letra ali.
+ */
+function gerarCnpj(opcoes?: OpcoesGeracao): string {
+  const alfabeto = opcoes?.alfanumerico ? ALFANUMERICO : DIGITOS
+
+  let raiz = ''
+  do {
+    raiz = `${caracteresAleatorios(8, alfabeto)}0001`
+    // Sem garantir uma letra, o modo alfanumérico às vezes devolveria um valor
+    // indistinguível do numérico, e não serviria para testar esse caminho.
+  } while (todosIguais(raiz) || (opcoes?.alfanumerico && !/[A-Z]/.test(raiz)))
 
   const d1 = digitoCnpj(raiz)
   return `${raiz}${d1}${digitoCnpj(raiz + d1)}`
@@ -271,11 +311,18 @@ export const DOCUMENTOS: Documento[] = [
     tipo: 'cnpj',
     categoria: 'empresa',
     rotulo: 'CNPJ',
-    descricao: 'Pessoa jurídica. Aceita o formato alfanumérico da Receita.',
+    descricao: 'Pessoa jurídica. Valida e gera no formato alfanumérico da Receita.',
     tamanho: 14,
     validar: validarCnpj,
     gerar: gerarCnpj,
-    formatar: (v) => aplicarMascara(soAlfanumerico(v), '##.###.###/####-##')
+    formatar: (v) => aplicarMascara(soAlfanumerico(v), '##.###.###/####-##'),
+    opcoes: [
+      {
+        chave: 'alfanumerico',
+        rotulo: 'Alfanumérico',
+        dica: 'Gera a raiz com letras, no formato que a Receita passa a aceitar'
+      }
+    ]
   },
   {
     tipo: 'caepf',
